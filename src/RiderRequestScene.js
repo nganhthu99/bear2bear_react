@@ -1,19 +1,19 @@
-import React, {useContext, useState} from 'react';
+import React, { useContext, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
-import TextField from "@material-ui/core/TextField";
-import {ContractContext} from "./ContractProvider";
-import {AccountContext} from "./AccountProvider";
-import {useHistory} from "react-router-dom";
-import Grid from "@material-ui/core/Grid";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
+import TextField from '@material-ui/core/TextField';
+import { ContractContext } from './ContractProvider';
+import { AccountContext } from './AccountProvider';
+import { useHistory } from 'react-router-dom';
+import Grid from '@material-ui/core/Grid';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles((theme) => ({
     root: {
         height: '100vh',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     paper: {
         margin: theme.spacing(8, 4),
@@ -33,36 +33,54 @@ const useStyles = makeStyles((theme) => ({
 const VEHICLE_TYPE = [
     {
         value: 0,
-        label: "Motorcycle"
+        label: 'Motorcycle',
     },
     {
         value: 1,
-        label: "4-seat car"
+        label: '4-seat car',
     },
     {
         value: 2,
-        label: "7-seat car"
-    }
-]
+        label: '7-seat car',
+    },
+];
 const RiderRequestScene = (props) => {
     const classes = useStyles();
-    const history = useHistory()
+    const history = useHistory();
 
-    const [phoneNumber, setPhoneNumber] = useState(null)
-    const [requestedVehicle, setRequestedVehicle] = useState(null)
-    const [position, setPosition] = useState(null)
+    const [phoneNumber, setPhoneNumber] = useState(null);
+    const [requestedVehicle, setRequestedVehicle] = useState(null);
+    const [position, setPosition] = useState(null);
 
-    const {account, setAccount} = useContext(AccountContext)
-    const {contract, setContract} = useContext(ContractContext)
+    const { account, setAccount } = useContext(AccountContext);
+    const { contract, setContract } = useContext(ContractContext);
 
     const handleRequestButton = () => {
-        history.push('/list-drivers')
-    }
+        saveInfoRider();
+        history.push('/list-drivers');
+    };
+
+    const saveInfoRider = () => {
+        const info = {
+            phoneNumber,
+            requestedVehicle,
+            position,
+        };
+        localStorage.setItem('riderInfo', JSON.stringify(info));
+    };
 
     return (
         <Grid container component="main" className={classes.root}>
             <CssBaseline />
-            <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
+            <Grid
+                item
+                xs={12}
+                sm={8}
+                md={4}
+                component={Paper}
+                elevation={6}
+                square
+            >
                 <div className={classes.paper}>
                     <Typography variant="h6">
                         Request a new ride now!!!
@@ -75,7 +93,9 @@ const RiderRequestScene = (props) => {
                             fullWidth
                             label="Phone Number"
                             autoFocus
-                            onChange={(event) => {setPhoneNumber(event.target.value)}}
+                            onChange={(event) => {
+                                setPhoneNumber(event.target.value);
+                            }}
                         />
                         <TextField
                             select
@@ -86,13 +106,18 @@ const RiderRequestScene = (props) => {
                             margin="normal"
                             SelectProps={{
                                 native: true,
-                            }}>
+                            }}
+                        >
                             {VEHICLE_TYPE.map((option) => (
                                 <option key={option.value} value={option.value}>
                                     {option.label}
                                 </option>
                             ))}
-                            onChange={(event) => {setRequestedVehicle(event.target.value)}}>
+                            onChange=
+                            {(event) => {
+                                setRequestedVehicle(event.target.value);
+                            }}
+                            >
                         </TextField>
                         <TextField
                             variant="outlined"
@@ -100,7 +125,9 @@ const RiderRequestScene = (props) => {
                             required
                             fullWidth
                             label="Position"
-                            onChange={(event) => {setPosition(event.target.value)}}
+                            onChange={(event) => {
+                                setPosition(event.target.value);
+                            }}
                         />
                         <Button
                             type="submit"
@@ -116,7 +143,7 @@ const RiderRequestScene = (props) => {
                 </div>
             </Grid>
         </Grid>
-    )
+    );
 };
 
 export default RiderRequestScene;
