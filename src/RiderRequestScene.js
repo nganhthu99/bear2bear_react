@@ -1,5 +1,5 @@
 import React, {useContext, useState} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
+import {makeStyles} from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from "@material-ui/core/TextField";
 import {ContractContext} from "./ContractProvider";
@@ -57,6 +57,17 @@ const RiderRequestScene = (props) => {
     const {contract, setContract} = useContext(ContractContext)
 
     const handleRequestButton = () => {
+
+        if (!phoneNumber || !position || !pickUpPosition) {
+            alert("Please fill up required field");
+            return;
+        }
+
+        if (!checkPhoneNumber(phoneNumber)){
+            alert("Please use correct phone number");
+            return;
+        }
+
         const rider = {
             phoneNumber: phoneNumber,
             vehicle: parseInt(requestedVehicle),
@@ -65,9 +76,18 @@ const RiderRequestScene = (props) => {
         history.push('/list-drivers', {rider: rider});
     }
 
+    const checkPhoneNumber = (inputtxt) => {
+        const phoneno = /^\d{10}$/;
+        if (inputtxt.match(phoneno)){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     return (
         <Grid container component="main" className={classes.root}>
-            <CssBaseline />
+            <CssBaseline/>
             <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
                 <div className={classes.paper}>
                     <Typography variant="h6">
@@ -81,7 +101,9 @@ const RiderRequestScene = (props) => {
                             fullWidth
                             label="Phone Number"
                             autoFocus
-                            onChange={(event) => {setPhoneNumber(event.target.value)}}
+                            onChange={(event) => {
+                                setPhoneNumber(event.target.value)
+                            }}
                         />
                         <TextField
                             select
@@ -89,7 +111,9 @@ const RiderRequestScene = (props) => {
                             fullWidth
                             value={requestedVehicle}
                             variant="outlined"
-                            onChange={(event) => {setRequestedVehicle(event.target.value)}}
+                            onChange={(event) => {
+                                setRequestedVehicle(event.target.value)
+                            }}
                             margin="normal"
                             SelectProps={{
                                 native: true,
@@ -99,7 +123,7 @@ const RiderRequestScene = (props) => {
                                     {option.label}
                                 </option>
                             ))}
-                          >
+                            >
                         </TextField>
                         <TextField
                             variant="outlined"
@@ -107,7 +131,9 @@ const RiderRequestScene = (props) => {
                             required
                             fullWidth
                             label="Pick up position"
-                            onChange={(event) => {setPickUpPosition(event.target.value)}}
+                            onChange={(event) => {
+                                setPickUpPosition(event.target.value)
+                            }}
                         />
                         <TextField
                             variant="outlined"
@@ -115,10 +141,12 @@ const RiderRequestScene = (props) => {
                             required
                             fullWidth
                             label="Destination position"
-                            onChange={(event) => {setPosition(event.target.value)}}
+                            onChange={(event) => {
+                                setPosition(event.target.value)
+                            }}
                         />
                         <Button
-                            type="submit"
+                            type="button"
                             fullWidth
                             variant="contained"
                             color="primary"
