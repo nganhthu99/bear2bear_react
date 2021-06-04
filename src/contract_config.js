@@ -1,4 +1,4 @@
-export const TODO_LIST_ADDRESS = '0xD0e2074B9ea3A1C6Dc3b4D27FBD64E2b973A1508'
+export const TODO_LIST_ADDRESS = '0x41CF57937f11B59d12F83aEA70Fa22DC5e0366a3'
 
 export const TODO_LIST_ABI = [
     {
@@ -56,6 +56,10 @@ export const TODO_LIST_ABI = [
                     {
                         "name": "position",
                         "type": "string"
+                    },
+                    {
+                        "name": "selectedVehicle",
+                        "type": "uint8"
                     }
                 ],
                 "name": "rider",
@@ -146,10 +150,29 @@ export const TODO_LIST_ABI = [
                 "indexed": false,
                 "name": "position",
                 "type": "string"
+            },
+            {
+                "indexed": false,
+                "name": "selectedVehicle",
+                "type": "uint8"
             }
         ],
         "name": "NewRideIsProcessing",
         "type": "event"
+    },
+    {
+        "constant": true,
+        "inputs": [],
+        "name": "driversCount",
+        "outputs": [
+            {
+                "name": "count",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
+        "type": "function"
     },
     {
         "constant": true,
@@ -203,6 +226,10 @@ export const TODO_LIST_ABI = [
                             {
                                 "name": "position",
                                 "type": "string"
+                            },
+                            {
+                                "name": "selectedVehicle",
+                                "type": "uint8"
                             }
                         ],
                         "name": "rider",
@@ -229,6 +256,89 @@ export const TODO_LIST_ABI = [
         "outputs": [],
         "payable": false,
         "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "constant": true,
+        "inputs": [
+            {
+                "name": "_riderPosition",
+                "type": "string"
+            },
+            {
+                "name": "_riderSelectedVechcle",
+                "type": "uint8"
+            }
+        ],
+        "name": "findSuitableDrivers",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "name": "driverIndex",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "driverAddress",
+                        "type": "address"
+                    },
+                    {
+                        "name": "phoneNumber",
+                        "type": "string"
+                    },
+                    {
+                        "name": "ownedVehicle",
+                        "type": "uint8"
+                    },
+                    {
+                        "name": "detailVehicle",
+                        "type": "string"
+                    },
+                    {
+                        "name": "position",
+                        "type": "string"
+                    },
+                    {
+                        "name": "pricePerKm",
+                        "type": "uint256"
+                    },
+                    {
+                        "name": "state",
+                        "type": "uint8"
+                    },
+                    {
+                        "components": [
+                            {
+                                "name": "riderAddress",
+                                "type": "string"
+                            },
+                            {
+                                "name": "phoneNumber",
+                                "type": "string"
+                            },
+                            {
+                                "name": "position",
+                                "type": "string"
+                            },
+                            {
+                                "name": "selectedVehicle",
+                                "type": "uint8"
+                            }
+                        ],
+                        "name": "rider",
+                        "type": "tuple"
+                    }
+                ],
+                "name": "resultList",
+                "type": "tuple[]"
+            },
+            {
+                "name": "resultCount",
+                "type": "uint256"
+            }
+        ],
+        "payable": false,
+        "stateMutability": "view",
         "type": "function"
     },
     {
@@ -287,6 +397,10 @@ export const TODO_LIST_ABI = [
             {
                 "name": "_riderPosition",
                 "type": "string"
+            },
+            {
+                "name": "_riderSelectedVechcle",
+                "type": "uint8"
             }
         ],
         "name": "processRide",
@@ -310,4 +424,3 @@ export const TODO_LIST_ABI = [
         "type": "function"
     }
 ]
-

@@ -101,6 +101,7 @@ const DriverRegisterScene = (props) => {
                             value={ownedVehicle}
                             variant="outlined"
                             margin="normal"
+                            onChange={(event) => {setOwnedVehicle(event.target.value)}}
                             SelectProps={{
                                 native: true,
                             }}>
@@ -109,7 +110,6 @@ const DriverRegisterScene = (props) => {
                                     {option.label}
                                 </option>
                             ))}
-                            onChange={(event) => {setOwnedVehicle(event.target.value)}}>
                         </TextField>
                         <TextField
                             variant="outlined"

@@ -49,14 +49,20 @@ const RiderRequestScene = (props) => {
     const history = useHistory()
 
     const [phoneNumber, setPhoneNumber] = useState(null)
-    const [requestedVehicle, setRequestedVehicle] = useState(null)
+    const [requestedVehicle, setRequestedVehicle] = useState(0)
+    const [pickUpPosition, setPickUpPosition] = useState(null)
     const [position, setPosition] = useState(null)
 
     const {account, setAccount} = useContext(AccountContext)
     const {contract, setContract} = useContext(ContractContext)
 
     const handleRequestButton = () => {
-        history.push('/list-drivers')
+        const rider = {
+            phoneNumber: phoneNumber,
+            vehicle: parseInt(requestedVehicle),
+            position: position
+        }
+        history.push('/list-drivers', {rider: rider});
     }
 
     return (
@@ -83,6 +89,7 @@ const RiderRequestScene = (props) => {
                             fullWidth
                             value={requestedVehicle}
                             variant="outlined"
+                            onChange={(event) => {setRequestedVehicle(event.target.value)}}
                             margin="normal"
                             SelectProps={{
                                 native: true,
@@ -92,14 +99,22 @@ const RiderRequestScene = (props) => {
                                     {option.label}
                                 </option>
                             ))}
-                            onChange={(event) => {setRequestedVehicle(event.target.value)}}>
+                          >
                         </TextField>
                         <TextField
                             variant="outlined"
                             margin="normal"
                             required
                             fullWidth
-                            label="Position"
+                            label="Pick up position"
+                            onChange={(event) => {setPickUpPosition(event.target.value)}}
+                        />
+                        <TextField
+                            variant="outlined"
+                            margin="normal"
+                            required
+                            fullWidth
+                            label="Destination position"
                             onChange={(event) => {setPosition(event.target.value)}}
                         />
                         <Button
