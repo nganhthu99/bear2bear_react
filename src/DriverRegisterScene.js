@@ -2,21 +2,21 @@ import React, {useContext, useState} from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from "@material-ui/core/TextField";
-import {ContractContext} from "./ContractProvider";
-import {AccountContext} from "./AccountProvider";
+import {ContractContext} from "./Provider/ContractProvider";
+import {AccountContext} from "./Provider/AccountProvider";
 import {useHistory} from "react-router-dom";
-import Grid from "@material-ui/core/Grid";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
+import {ProvidedInfoContext} from "./Provider/ProvidedInfoProvider";
+import {validatePhoneNumberUtil, validatePriceUtil} from "./Utility/ValidateInputUtil";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import AttachMoneyRoundedIcon from '@material-ui/icons/AttachMoneyRounded';
+import ChoosePositionDialog from "./ChoosePositionDialog";
+import FeedbackSnackbar from "./Common/FeedbackSnackbar";
+import AlertDialog from "./Common/AlertDialog";
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        height: '100vh',
-        justifyContent: 'center'
-    },
     paper: {
-        margin: theme.spacing(8, 4),
+        margin: theme.spacing(2, 2, 1, 2),
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
         marginTop: theme.spacing(1),
     },
     submit: {
-        margin: theme.spacing(3, 0, 2),
+        margin: theme.spacing(3, 0, 0),
     },
 }));
 
@@ -49,106 +49,164 @@ const DriverRegisterScene = (props) => {
     const classes = useStyles();
     const history = useHistory()
 
+    const {account, setAccount} = useContext(AccountContext)
+    const {info, setInfo} = useContext(ProvidedInfoContext)
+    const {contract, setContract} = useContext(ContractContext)
+
     const [phoneNumber, setPhoneNumber] = useState(null)
-    const [ownedVehicle, setOwnedVehicle] = useState(0)
-    const [detailVehicle, setDetailVehicle] = useState(null)
+    const [vehicleType, setVehicleType] = useState("0")
+    const [vehicleDetail, setVehicleDetail] = useState(null)
     const [position, setPosition] = useState(null)
     const [pricePerKm, setPricePerKm] = useState(null)
 
-    const {account, setAccount} = useContext(AccountContext)
-    const {contract, setContract} = useContext(ContractContext)
+    const [error, setError] = useState(null)
+    const [isAlertDialogShow, setIsAlertDialogShow] = useState(false)
+
+    // const handleRegisterButton = () => {
+    //     if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
+    //         setInfo({
+    //             phoneNumber,
+    //             vehicleType,
+    //             vehicleDetail,
+    //             position,
+    //             pricePerKm
+    //         })
+    //         contract.methods.registerDrive(account.address, phoneNumber, vehicleType, vehicleDetail, position, Number(pricePerKm))
+    //             .send({from: account.address})
+    //             .on('receipt', () => {
+    //                 history.replace('/driver-waiting')
+    //             })
+    //             .on('error', () => {
+    //                 setError({severity: "error", message: "Error processing transaction!"})
+    //             })
+    //     } else {
+    //         setError({severity: "warning", message: "Please fill out all fields!"})
+    //     }
+    // }
 
     const handleRegisterButton = () => {
-        console.log(account.address)
-        console.log(phoneNumber)
-        console.log(ownedVehicle)
-        console.log(detailVehicle)
-        console.log(position)
-        console.log(pricePerKm)
+        // contract.methods.processRide(driver.driverIndex, driver.driverAddress, account.address, info.phoneNumber, info.position, info.destination)
+        //     .send({from: account})
+        //     .on('receipt', () => {
+        //         history.push('/rider-confirm')
+        //     })
+        //     .on('error', () => {
+        //
+        //     })
+        if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
+            setIsAlertDialogShow(true)
+        } else {
+            setError({severity: "warning", message: "Please fill out all fields!"})
+        }
+    }
 
-        contract.methods.registerDrive(account.address, phoneNumber, ownedVehicle, detailVehicle, position, Number(pricePerKm))
-            .send({from: account.address})
-            .on('receipt', () => {
-                history.replace('/driver-waiting')
+    const handleProcessButton = () => {
+        // if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
+            setInfo({
+                phoneNumber,
+                vehicleType,
+                vehicleDetail,
+                position,
+                pricePerKm
             })
-            .on('error', () => {
-
-            })
+            contract.methods.registerDrive(account.address, phoneNumber, vehicleType, vehicleDetail, position, Number(pricePerKm))
+                .send({from: account.address})
+                .on('receipt', () => {
+                    history.replace('/driver-waiting')
+                })
+                .on('error', () => {
+                    setError({severity: "error", message: "Error processing transaction!"})
+                })
+        // } else {
+        //     setError({severity: "warning", message: "Please fill out all fields!"})
+        // }
     }
 
     return (
-        <Grid container component="main" className={classes.root}>
-            <CssBaseline />
-            <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
-                <div className={classes.paper}>
-                    <Typography variant="h6">
-                        Register now to become a driver!!!
-                    </Typography>
-                    <div className={classes.form} noValidate>
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            label="Phone Number"
-                            autoFocus
-                            onChange={(event) => {setPhoneNumber(event.target.value)}}
-                        />
-                        <TextField
-                            select
-                            label="Vehicle Type"
-                            fullWidth
-                            value={ownedVehicle}
-                            variant="outlined"
-                            margin="normal"
-                            SelectProps={{
-                                native: true,
-                            }}>
-                            {VEHICLE_TYPE.map((option) => (
-                                <option key={option.value} value={option.value}>
-                                    {option.label}
-                                </option>
-                            ))}
-                            onChange={(event) => {setOwnedVehicle(event.target.value)}}>
-                        </TextField>
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            label="Detail Vehicle"
-                            onChange={(event) => {setDetailVehicle(event.target.value)}}
-                        />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            label="Position"
-                            onChange={(event) => {setPosition(event.target.value)}}
-                        />
-                        <TextField
-                            variant="outlined"
-                            margin="normal"
-                            required
-                            fullWidth
-                            label="Price Per Kilometer"
-                            onChange={(event) => {setPricePerKm(event.target.value)}}
-                        />
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            color="primary"
-                            className={classes.submit}
-                            onClick={handleRegisterButton}
-                        >
-                            Register
-                        </Button>
-                    </div>
-                </div>
-            </Grid>
-        </Grid>
+        <div className={classes.paper}>
+            <Typography variant="h6">
+                Register now to become a driver!!!
+            </Typography>
+            <div className={classes.form}>
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Phone Number"
+                    autoFocus
+                    error={phoneNumber && !validatePhoneNumberUtil(phoneNumber)}
+                    onChange={(event) => {setPhoneNumber(event.target.value)}}
+                />
+                <TextField
+                    select
+                    label="Vehicle Type"
+                    fullWidth
+                    value={vehicleType}
+                    variant="outlined"
+                    margin="normal"
+                    SelectProps={{
+                        native: true,
+                    }}
+                    onChange={(event) => {setVehicleType(event.target.value)}}>>
+                    {VEHICLE_TYPE.map((option) => (
+                        <option key={option.value} value={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </TextField>
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Detail Vehicle"
+                    onChange={(event) => {setVehicleDetail(event.target.value)}}
+                />
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Position"
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <ChoosePositionDialog/>
+                            </InputAdornment>
+                        )
+                    }}
+                    onChange={(event) => {setPosition(event.target.value)}}
+                />
+                <TextField
+                    variant="outlined"
+                    margin="normal"
+                    required
+                    fullWidth
+                    label="Price Per Kilometer"
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <AttachMoneyRoundedIcon color="primary"/>
+                            </InputAdornment>
+                        ),
+                    }}
+                    error={pricePerKm && !validatePriceUtil(pricePerKm)}
+                    onChange={(event) => {setPricePerKm(event.target.value)}}
+                />
+                <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                    onClick={handleRegisterButton}>
+                    Register
+                </Button>
+            </div>
+            {isAlertDialogShow && <AlertDialog process={handleProcessButton} close={() => {setIsAlertDialogShow(false)}} />}
+            {error && <FeedbackSnackbar severity={error.severity} message={error.message} close={() => {setError(null)}}/>}
+        </div>
     )
 };
 
