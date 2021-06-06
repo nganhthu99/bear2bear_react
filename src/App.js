@@ -1,12 +1,12 @@
 import React, {useContext, useEffect, useState} from "react";
 import Web3 from "web3";
-import {TODO_LIST_ABI, TODO_LIST_ADDRESS} from "./contract_config";
+import {TODO_LIST_ABI, TODO_LIST_ADDRESS} from "./Service/contract_config";
 import {Route, Switch} from 'react-router-dom';
 import HomeScene from "./HomeScene";
 import DriverRegisterScene from "./DriverRegisterScene";
-import {ContractContext} from "./ContractProvider";
-import {SocketContractContext} from "./SocketContractProvider";
-import {AccountContext} from "./AccountProvider";
+import {ContractContext} from "./Provider/ContractProvider";
+import {SocketContractContext} from "./Provider/SocketContractProvider";
+import {AccountContext} from "./Provider/AccountProvider";
 import DriverWaitingScene from "./DriverWaitingScene";
 import RiderRequestScene from "./RiderRequestScene";
 import ListDriversScene from "./ListDriversScene";
@@ -14,6 +14,18 @@ import DriverInfoScene from "./DriverInfoScene";
 import DriverConfirmScene from "./DriverConfirmScene";
 import RiderConfirmScene from "./RiderConfirmScene";
 import {makeStyles} from "@material-ui/core/styles";
+import ConfirmRideSuccessScene from "./ConfirmRideSuccessScene";
+import Grid from "@material-ui/core/Grid";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Paper from "@material-ui/core/Paper";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
+import BottomNavigation from "@material-ui/core/BottomNavigation";
+import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
+import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
+import AccountInfoPopover from "./AccountInfoPopover";
+import {loadAddress, loadBalance} from "./Service/ContractService";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -26,20 +38,24 @@ const useStyles = makeStyles((theme) => ({
         flexDirection: 'column',
         alignItems: 'center',
     },
+    appBar: {
+        height: '10vh'
+    },
     title: {
         flexGrow: 1,
     },
     bottomNavigation: {
         width: "100%",
-        margin: theme.spacing(28, 0, 0, 0),
-    },
+        height: '10vh',
+        // margin: theme.spacing(28, 0, 0, 0),
+    }
 }));
 
 const App = () => {
+    const classes = useStyles();
     const {account, setAccount} = useContext(AccountContext)
     const {contract, setContract} = useContext(ContractContext)
     const {socketContract, setSocketContract} = useContext(SocketContractContext)
-    const classes = useStyles();
     const [value, setValue] = useState(0);
 
     useEffect(() => {
@@ -62,81 +78,80 @@ const App = () => {
         //     .on('error', console.error);
 
         // account
-        loadAccount(web3)
+        loadAddress(web3)
             .then((accounts) => {
+                loadBalance(web3, accounts[0])
+                    .then((res) => {
+                        console.log(web3.utils.fromWei(res, "ether"))
+                        setAccount({
+                            address: accounts[0],
+                            balance: web3.utils.fromWei(res, "ether")
+                        })
+                    })
                 setAccount({address: accounts[0]})
             })
     }, [])
 
-    async function loadAccount(web3) {
-        return await web3.eth.getAccounts()
-    }
+    // async function loadAddress(web3) {
+    //     return await web3.eth.getAccounts()
+    // }
+    //
+    // async function loadBalance(web3, address) {
+    //     return await web3.eth.getBalance(address)
+    // }
 
     return (
-        <div>
-            <Switch>
-                <Route path={'/register-drive'} component={DriverRegisterScene}/>
-                <Route path={'/driver-waiting'} component={DriverWaitingScene}/>
-                <Route path={'/request-ride'} component={RiderRequestScene}/>
-                <Route path={'/list-drivers'} component={ListDriversScene}/>
-                <Route path={'/driver-info'} component={DriverInfoScene}/>
-                <Route path={'/driver-confirm'} component={DriverConfirmScene}/>
-                <Route path={'/rider-confirm'} component={RiderConfirmScene}/>
-                <Route path={'/'} component={HomeScene}/>
-            </Switch>
-        </div>
+        // <div>
+        //     <Switch>
+        //         <Route path={'/register-drive'} component={DriverRegisterScene}/>
+        //         <Route path={'/driver-waiting'} component={DriverWaitingScene}/>
+        //         <Route path={'/request-ride'} component={RiderRequestScene}/>
+        //         <Route path={'/list-drivers'} component={ListDriversScene}/>
+        //         <Route path={'/driver-info'} component={DriverInfoScene}/>
+        //         <Route path={'/driver-confirm'} component={DriverConfirmScene}/>
+        //         <Route path={'/rider-confirm'} component={RiderConfirmScene}/>
+        //         <Route path={'/confirm-ride-success'} component={ConfirmRideSuccessScene}/>
+        //         <Route path={'/'} component={HomeScene}/>
+        //     </Switch>
+        // </div>
 
-    //     <Grid container component="main" className={classes.root}>
-    //         <CssBaseline />
-    //         <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
-    //             <div className={classes.paper}>
-    //
-    //                 <AppBar position="static">
-    //                     <Toolbar>
-    //                         <Typography variant="h6" className={classes.title}>
-    //
-    //                         </Typography>
-    //                             <div>
-    //                                 <IconButton
-    //                                     aria-label="account of current user"
-    //                                     aria-controls="menu-appbar"
-    //                                     aria-haspopup="true"
-    //                                     onClick={() => {}}
-    //                                     color="secondary"
-    //                                 >
-    //                                     <AccountBalanceWalletRoundedIcon />
-    //                                 </IconButton>
-    //                             </div>
-    //                     </Toolbar>
-    //                 </AppBar>
-    //
-    //                 <Switch>
-    //                     <Route path={'/register-drive'} component={DriverRegisterScene}/>
-    //                     <Route path={'/driver-waiting'} component={DriverWaitingScene}/>
-    //                     <Route path={'/request-ride'} component={RiderRequestScene}/>
-    //                     <Route path={'/list-drivers'} component={ListDriversScene}/>
-    //                     <Route path={'/driver-info'} component={DriverInfoScene}/>
-    //                     <Route path={'/driver-confirm'} component={DriverConfirmScene}/>
-    //                     <Route path={'/rider-confirm'} component={RiderConfirmScene}/>
-    //
-    //                     <Route path={'/'} component={HomeScene}/>
-    //                 </Switch>
-    //
-    //                 <BottomNavigation
-    //                     value={value}
-    //                     onChange={(event, newValue) => {
-    //                         setValue(newValue);
-    //                     }}
-    //                     showLabels
-    //                     className={classes.bottomNavigation}>
-    //                     {/*<BottomNavigationAction label="Recents" icon={<RestoreIcon />} />*/}
-    //                     <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
-    //                     {/*<BottomNavigationAction label="Nearby" icon={<LocationOnIcon />} />*/}
-    //                 </BottomNavigation>
-    //
-    //             </div>
-    //         </Grid>
-    //     </Grid>
+        <Grid container component="main" className={classes.root}>
+            <CssBaseline />
+            <Grid item xs={12} sm={8} md={4} component={Paper} elevation={6} square>
+                <div className={classes.paper}>
+
+                    <AppBar position="static" className={classes.appBar}>
+                        <Toolbar>
+                            <Typography variant="h6" className={classes.title}/>
+                            <AccountInfoPopover/>
+                        </Toolbar>
+                    </AppBar>
+
+                    <Switch>
+                        <Route path={'/register-drive'} component={DriverRegisterScene}/>
+                        <Route path={'/driver-waiting'} component={DriverWaitingScene}/>
+                        <Route path={'/request-ride'} component={RiderRequestScene}/>
+                        <Route path={'/list-drivers'} component={ListDriversScene}/>
+                        <Route path={'/driver-info'} component={DriverInfoScene}/>
+                        <Route path={'/driver-confirm'} component={DriverConfirmScene}/>
+                        <Route path={'/rider-confirm'} component={RiderConfirmScene}/>
+                        <Route path={'/confirm-ride-success'} component={ConfirmRideSuccessScene}/>
+                        <Route path={'/'} component={HomeScene}/>
+                    </Switch>
+
+                    <BottomNavigation
+                        value={value}
+                        onChange={(event, newValue) => {
+                            setValue(newValue);
+                        }}
+                        showLabels
+                        className={classes.bottomNavigation}>
+                        <BottomNavigationAction label="Home" icon={<HomeRoundedIcon />} />
+                    </BottomNavigation>
+
+                </div>
+            </Grid>
+        </Grid>
 
     )
 }
