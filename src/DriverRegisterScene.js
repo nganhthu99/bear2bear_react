@@ -1,28 +1,32 @@
-import React, {useContext, useState} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import React, { useContext, useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import {ContractContext} from "./Provider/ContractProvider";
-import {AccountContext} from "./Provider/AccountProvider";
-import {useHistory} from "react-router-dom";
+import { ContractContext } from "./Provider/ContractProvider";
+import { AccountContext } from "./Provider/AccountProvider";
+import { useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
-import {ProvidedInfoContext} from "./Provider/ProvidedInfoProvider";
-import {validatePhoneNumberUtil, validatePriceUtil} from "./Utility/ValidateInputUtil";
+import { ProvidedInfoContext } from "./Provider/ProvidedInfoProvider";
+import {
+    validatePhoneNumberUtil,
+    validatePriceUtil,
+} from "./Utility/ValidateInputUtil";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import AttachMoneyRoundedIcon from '@material-ui/icons/AttachMoneyRounded';
+import AttachMoneyRoundedIcon from "@material-ui/icons/AttachMoneyRounded";
 import ChoosePositionDialog from "./ChoosePositionDialog";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
 import AlertDialog from "./Common/AlertDialog";
+import InputGoogleAddress from "./Common/InputGoogleAddress";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         margin: theme.spacing(2, 2, 1, 2),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
     },
     form: {
-        width: '100%', // Fix IE 11 issue.
+        width: "100%", // Fix IE 11 issue.
         marginTop: theme.spacing(1),
     },
     submit: {
@@ -33,34 +37,34 @@ const useStyles = makeStyles((theme) => ({
 const VEHICLE_TYPE = [
     {
         value: 0,
-        label: "Motorcycle"
+        label: "Motorcycle",
     },
     {
         value: 1,
-        label: "4-seat car"
+        label: "4-seat car",
     },
     {
         value: 2,
-        label: "7-seat car"
-    }
-]
+        label: "7-seat car",
+    },
+];
 
 const DriverRegisterScene = (props) => {
     const classes = useStyles();
-    const history = useHistory()
+    const history = useHistory();
 
-    const {account, setAccount} = useContext(AccountContext)
-    const {info, setInfo} = useContext(ProvidedInfoContext)
-    const {contract, setContract} = useContext(ContractContext)
+    const { account, setAccount } = useContext(AccountContext);
+    const { info, setInfo } = useContext(ProvidedInfoContext);
+    const { contract, setContract } = useContext(ContractContext);
 
-    const [phoneNumber, setPhoneNumber] = useState(null)
-    const [vehicleType, setVehicleType] = useState("0")
-    const [vehicleDetail, setVehicleDetail] = useState(null)
-    const [position, setPosition] = useState(null)
-    const [pricePerKm, setPricePerKm] = useState(null)
+    const [phoneNumber, setPhoneNumber] = useState(null);
+    const [vehicleType, setVehicleType] = useState("0");
+    const [vehicleDetail, setVehicleDetail] = useState(null);
+    const [position, setPosition] = useState(null);
+    const [pricePerKm, setPricePerKm] = useState(null);
 
-    const [error, setError] = useState(null)
-    const [isAlertDialogShow, setIsAlertDialogShow] = useState(false)
+    const [error, setError] = useState(null);
+    const [isAlertDialogShow, setIsAlertDialogShow] = useState(false);
 
     // const handleRegisterButton = () => {
     //     if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
@@ -93,34 +97,57 @@ const DriverRegisterScene = (props) => {
         //     .on('error', () => {
         //
         //     })
-        if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
-            setIsAlertDialogShow(true)
+        if (
+            validatePhoneNumberUtil(phoneNumber) &&
+            vehicleType &&
+            vehicleDetail &&
+            position &&
+            validatePriceUtil(pricePerKm)
+        ) {
+            setIsAlertDialogShow(true);
         } else {
-            setError({severity: "warning", message: "Please fill out all fields!"})
+            setError({
+                severity: "warning",
+                message: "Please fill out all fields!",
+            });
         }
-    }
+    };
 
     const handleProcessButton = () => {
         // if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
-            setInfo({
+        setInfo({
+            phoneNumber,
+            vehicleType,
+            vehicleDetail,
+            position: position.address,
+            pricePerKm,
+            geometry: position.geometry,
+        });
+        contract.methods
+            .registerDrive(
+                account.address,
                 phoneNumber,
                 vehicleType,
                 vehicleDetail,
-                position,
-                pricePerKm
+                position.address,
+                Number(pricePerKm),
+                position.geometry.lat,
+                position.geometry.lng
+            )
+            .send({ from: account.address })
+            .on("receipt", () => {
+                history.replace("/driver-waiting");
             })
-            contract.methods.registerDrive(account.address, phoneNumber, vehicleType, vehicleDetail, position, Number(pricePerKm))
-                .send({from: account.address})
-                .on('receipt', () => {
-                    history.replace('/driver-waiting')
-                })
-                .on('error', () => {
-                    setError({severity: "error", message: "Error processing transaction!"})
-                })
+            .on("error", () => {
+                setError({
+                    severity: "error",
+                    message: "Error processing transaction!",
+                });
+            });
         // } else {
         //     setError({severity: "warning", message: "Please fill out all fields!"})
         // }
-    }
+    };
 
     return (
         <div className={classes.paper}>
@@ -136,7 +163,9 @@ const DriverRegisterScene = (props) => {
                     label="Phone Number"
                     autoFocus
                     error={phoneNumber && !validatePhoneNumberUtil(phoneNumber)}
-                    onChange={(event) => {setPhoneNumber(event.target.value)}}
+                    onChange={(event) => {
+                        setPhoneNumber(event.target.value);
+                    }}
                 />
                 <TextField
                     select
@@ -148,7 +177,10 @@ const DriverRegisterScene = (props) => {
                     SelectProps={{
                         native: true,
                     }}
-                    onChange={(event) => {setVehicleType(event.target.value)}}>>
+                    onChange={(event) => {
+                        setVehicleType(event.target.value);
+                    }}
+                >
                     {VEHICLE_TYPE.map((option) => (
                         <option key={option.value} value={option.value}>
                             {option.label}
@@ -161,9 +193,11 @@ const DriverRegisterScene = (props) => {
                     required
                     fullWidth
                     label="Detail Vehicle"
-                    onChange={(event) => {setVehicleDetail(event.target.value)}}
+                    onChange={(event) => {
+                        setVehicleDetail(event.target.value);
+                    }}
                 />
-                <TextField
+                {/* <TextField
                     variant="outlined"
                     margin="normal"
                     required
@@ -177,6 +211,20 @@ const DriverRegisterScene = (props) => {
                         )
                     }}
                     onChange={(event) => {setPosition(event.target.value)}}
+                /> */}
+                <InputGoogleAddress
+                    label="Position"
+                    onChange={(address) => setPosition(address)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <ChoosePositionDialog
+                                    position={position?.geometry}
+                                    isRider={false}
+                                />
+                            </InputAdornment>
+                        ),
+                    }}
                 />
                 <TextField
                     variant="outlined"
@@ -187,12 +235,14 @@ const DriverRegisterScene = (props) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <AttachMoneyRoundedIcon color="primary"/>
+                                <AttachMoneyRoundedIcon color="primary" />
                             </InputAdornment>
                         ),
                     }}
                     error={pricePerKm && !validatePriceUtil(pricePerKm)}
-                    onChange={(event) => {setPricePerKm(event.target.value)}}
+                    onChange={(event) => {
+                        setPricePerKm(event.target.value);
+                    }}
                 />
                 <Button
                     type="submit"
@@ -200,14 +250,30 @@ const DriverRegisterScene = (props) => {
                     variant="contained"
                     color="primary"
                     className={classes.submit}
-                    onClick={handleRegisterButton}>
+                    onClick={handleRegisterButton}
+                >
                     Register
                 </Button>
             </div>
-            {isAlertDialogShow && <AlertDialog process={handleProcessButton} close={() => {setIsAlertDialogShow(false)}} />}
-            {error && <FeedbackSnackbar severity={error.severity} message={error.message} close={() => {setError(null)}}/>}
+            {isAlertDialogShow && (
+                <AlertDialog
+                    process={handleProcessButton}
+                    close={() => {
+                        setIsAlertDialogShow(false);
+                    }}
+                />
+            )}
+            {error && (
+                <FeedbackSnackbar
+                    severity={error.severity}
+                    message={error.message}
+                    close={() => {
+                        setError(null);
+                    }}
+                />
+            )}
         </div>
-    )
+    );
 };
 
 export default DriverRegisterScene;

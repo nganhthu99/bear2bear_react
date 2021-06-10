@@ -1,26 +1,27 @@
-import React, {useContext, useState} from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import React, { useContext, useState } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import {ContractContext} from "./Provider/ContractProvider";
-import {AccountContext} from "./Provider/AccountProvider";
-import {useHistory} from "react-router-dom";
+import { ContractContext } from "./Provider/ContractProvider";
+import { AccountContext } from "./Provider/AccountProvider";
+import { useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
-import {ProvidedInfoContext} from "./Provider/ProvidedInfoProvider";
+import { ProvidedInfoContext } from "./Provider/ProvidedInfoProvider";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import ChoosePositionDialog from "./ChoosePositionDialog";
-import {validatePhoneNumberUtil} from "./Utility/ValidateInputUtil";
+import { validatePhoneNumberUtil } from "./Utility/ValidateInputUtil";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
+import InputGoogleAddress from "./Common/InputGoogleAddress";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         margin: theme.spacing(2, 2, 9, 2),
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
     },
     form: {
-        width: '100%', // Fix IE 11 issue.
+        width: "100%", // Fix IE 11 issue.
         marginTop: theme.spacing(1),
     },
     submit: {
@@ -31,56 +32,63 @@ const useStyles = makeStyles((theme) => ({
 const VEHICLE_TYPE = [
     {
         value: 0,
-        label: "Motorcycle"
+        label: "Motorcycle",
     },
     {
         value: 1,
-        label: "4-seat car"
+        label: "4-seat car",
     },
     {
         value: 2,
-        label: "7-seat car"
-    }
-]
+        label: "7-seat car",
+    },
+];
 const RiderRequestScene = (props) => {
     const classes = useStyles();
-    const history = useHistory()
+    const history = useHistory();
 
-    const [phoneNumber, setPhoneNumber] = useState(null)
-    const [vehicleType, setVehicleType] = useState("0")
-    const [position, setPosition] = useState(null)
-    const [destination, setDestination] = useState(null)
+    const [phoneNumber, setPhoneNumber] = useState(null);
+    const [vehicleType, setVehicleType] = useState("0");
+    const [position, setPosition] = useState(null);
+    const [destination, setDestination] = useState(null);
 
-    const {account, setAccount} = useContext(AccountContext)
-    const {contract, setContract} = useContext(ContractContext)
-    const {info, setInfo} = useContext(ProvidedInfoContext)
+    const { account, setAccount } = useContext(AccountContext);
+    const { contract, setContract } = useContext(ContractContext);
+    const { info, setInfo } = useContext(ProvidedInfoContext);
 
-    const [error, setError] = useState(false)
+    const [error, setError] = useState(false);
 
     const handleRequestButton = () => {
-        console.log(phoneNumber)
-        console.log(vehicleType)
-        console.log(position)
-        console.log(destination)
+        console.log(phoneNumber);
+        console.log(vehicleType);
+        console.log(position);
+        console.log(destination);
 
-        if (validatePhoneNumberUtil(phoneNumber) && vehicleType && position && destination) {
+        if (
+            validatePhoneNumberUtil(phoneNumber) &&
+            vehicleType &&
+            position &&
+            destination
+        ) {
             setInfo({
                 phoneNumber,
                 vehicleType,
-                position,
-                destination
-            })
-            history.push('/list-drivers')
+                position: position.address,
+                destination: destination.address,
+                geometry: position.geometry,
+            });
+            history.push("/list-drivers");
         } else {
-            setError({severity: "warning", message: "Please fill out all fields!"})
+            setError({
+                severity: "warning",
+                message: "Please fill out all fields!",
+            });
         }
-    }
+    };
 
     return (
         <div className={classes.paper}>
-            <Typography variant="h6">
-                Request a new ride now!!!
-            </Typography>
+            <Typography variant="h6">Request a new ride now!!!</Typography>
             <div className={classes.form}>
                 <TextField
                     variant="outlined"
@@ -90,7 +98,9 @@ const RiderRequestScene = (props) => {
                     label="Phone Number"
                     autoFocus
                     error={phoneNumber && !validatePhoneNumberUtil(phoneNumber)}
-                    onChange={(event) => {setPhoneNumber(event.target.value)}}
+                    onChange={(event) => {
+                        setPhoneNumber(event.target.value);
+                    }}
                 />
                 <TextField
                     select
@@ -102,14 +112,17 @@ const RiderRequestScene = (props) => {
                     SelectProps={{
                         native: true,
                     }}
-                    onChange={(event) => {setVehicleType(event.target.value)}}>
+                    onChange={(event) => {
+                        setVehicleType(event.target.value);
+                    }}
+                >
                     {VEHICLE_TYPE.map((option) => (
                         <option key={option.value} value={option.value}>
                             {option.label}
                         </option>
                     ))}
                 </TextField>
-                <TextField
+                {/* <TextField
                     variant="outlined"
                     margin="normal"
                     required
@@ -118,11 +131,13 @@ const RiderRequestScene = (props) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <ChoosePositionDialog/>
+                                <ChoosePositionDialog />
                             </InputAdornment>
-                        )
+                        ),
                     }}
-                    onChange={(event) => {setPosition(event.target.value)}}
+                    onChange={(event) => {
+                        setPosition(event.target.value);
+                    }}
                 />
                 <TextField
                     variant="outlined"
@@ -133,11 +148,39 @@ const RiderRequestScene = (props) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <ChoosePositionDialog/>
+                                <ChoosePositionDialog />
                             </InputAdornment>
-                        )
+                        ),
                     }}
-                    onChange={(event) => {setDestination(event.target.value)}}
+                    onChange={(event) => {
+                        setDestination(event.target.value);
+                    }}
+                /> */}
+                <InputGoogleAddress
+                    label="Position"
+                    onChange={(address) => setPosition(address)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <ChoosePositionDialog
+                                    position={position?.geometry}
+                                />
+                            </InputAdornment>
+                        ),
+                    }}
+                />
+                <InputGoogleAddress
+                    label="Destination"
+                    onChange={(address) => setDestination(address)}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <ChoosePositionDialog
+                                    position={destination?.geometry}
+                                />
+                            </InputAdornment>
+                        ),
+                    }}
                 />
                 <Button
                     type="submit"
@@ -145,13 +188,22 @@ const RiderRequestScene = (props) => {
                     variant="contained"
                     color="primary"
                     className={classes.submit}
-                    onClick={handleRequestButton}>
+                    onClick={handleRequestButton}
+                >
                     Request
                 </Button>
             </div>
-            {error && <FeedbackSnackbar severity={error.severity} message={error.message} close={() => {setError(null)}}/>}
+            {error && (
+                <FeedbackSnackbar
+                    severity={error.severity}
+                    message={error.message}
+                    close={() => {
+                        setError(null);
+                    }}
+                />
+            )}
         </div>
-    )
+    );
 };
 
 export default RiderRequestScene;

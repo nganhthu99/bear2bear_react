@@ -1,38 +1,47 @@
-import {Map, InfoWindow, Marker, GoogleApiWrapper} from 'google-maps-react';
-import React, {useEffect, useState} from "react";
-import {Typography} from "@material-ui/core";
+import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
+import React, { useEffect, useState } from "react";
+import { Typography } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
-import {makeStyles} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
+import driverAvatar from "./assets/images/driver.png";
+import riderAvatar from "./assets/images/rider.png";
 
 const useStyles = makeStyles((theme) => ({
     root: {
         margin: theme.spacing(0.5),
-        display: 'flex',
-        justifyContent: 'center'
+        display: "flex",
+        justifyContent: "center",
     },
     textField: {
-        width: "500px"
-    }
+        width: "500px",
+    },
 }));
 
-const MapContainer = (props) =>  {
-    const selectedPlace = useState({name: "LA"})
+const MapContainer = (props) => {
+    const { position = null, destination = null, isRider = true } = props;
 
-    const [position, setPosition] = useState("")
-    const [destination, setDestination] = useState("")
-
-    const classes = useStyles()
-
-    const onMarkerClick = () => {
-
+    if (position) {
+        position.lat = parseFloat(position.lat);
+        position.lng = parseFloat(position.lng);
     }
 
-    const onInfoWindowClose = () => {
-
+    if (destination) {
+        destination.lat = parseFloat(destination.lat);
+        destination.lng = parseFloat(destination.lng);
     }
+
+    const selectedPlace = useState({ name: "LA" });
+    // const [position, setPosition] = useState(props.position || null);
+    // const [destination, setDestination] = useState(props.destination || null);
+
+    const classes = useStyles();
+
+    const onMarkerClick = () => {};
+
+    const onInfoWindowClose = () => {};
 
     // Google Map
     // useEffect(() => {
@@ -64,28 +73,39 @@ const MapContainer = (props) =>  {
 
     return (
         <>
-            <Map google={props.google} zoom={14}>
-
-                <Marker
-                    title={'The marker`s title will appear as a tooltip.'}
-                    name={'SOMA'}
-                    position={{lat: 37.778519, lng: -122.405640}} />
-                <Marker
-                    name={'Dolores park'}
-                    position={{lat: 37.759703, lng: -122.428093}} />
-                <Marker />
+            <Map
+                google={props.google}
+                zoom={14}
+                initialCenter={position || { lat: 37.778519, lng: -122.40564 }}
+            >
+                {position && (
+                    <Marker
+                        position={position}
+                        icon={{
+                            url: isRider ? riderAvatar : driverAvatar,
+                            scaledSize: new window.google.maps.Size(45, 45),
+                        }}
+                    />
+                )}
+                {destination && (
+                    <Marker
+                        position={destination}
+                        icon={{
+                            url: isRider ? driverAvatar : riderAvatar,
+                            scaledSize: new window.google.maps.Size(45, 45),
+                        }}
+                    />
+                )}
                 <InfoWindow onClose={onInfoWindowClose}>
                     <div>
                         <h1>{selectedPlace.name}</h1>
                     </div>
                 </InfoWindow>
-
             </Map>
         </>
     );
-}
-
+};
 
 export default GoogleApiWrapper({
-    apiKey: ("AIzaSyDcb9xE9GcxnqUUbLeZNFvEQQtjoeYMitY")
-})(MapContainer)
+    apiKey: "AIzaSyCHy12YAUgj8tq_wJcDKmnIBwkwbLoC9kg",
+})(MapContainer);
