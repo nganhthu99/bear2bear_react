@@ -38,21 +38,21 @@ const DriverWaitingScene = (props) => {
         initSocketContract.events.NewRide({})
             .on('data', async function(event){
                 const eventValue = event.returnValues
-                const driverAddress = eventValue.driverAddress
                 const driverIndex = eventValue.driverIndex
+                const driverAddress = eventValue.driverAddress
                 if (driverAddress === account.address) {
                     const rider = {
                         riderAddress: eventValue.riderAddress,
                         riderPhoneNumber: eventValue.riderPhoneNumber,
                         riderPosition: eventValue.riderPosition,
-                        riderDestination: eventValue.riderDestination
+                        riderDestination: eventValue.riderDestination,
+                        riderDistance: eventValue.riderDistance
                     }
                     setIsWaiting(false)
                     history.push('/driver-confirm', { riderInfo : rider, driverIndex })
                 }
             })
             .on('error', console.error);
-
     }, [])
 
     return (
