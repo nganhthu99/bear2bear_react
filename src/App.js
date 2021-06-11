@@ -26,6 +26,7 @@ import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import HomeRoundedIcon from '@material-ui/icons/HomeRounded';
 import AccountInfoPopover from "./AccountInfoPopover";
 import {loadAddress, loadBalance} from "./Service/ContractService";
+import {Web3Context} from "./Provider/Web3Provider";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -53,6 +54,7 @@ const useStyles = makeStyles((theme) => ({
 
 const App = () => {
     const classes = useStyles();
+    const {web3, setWeb3} = useContext(Web3Context)
     const {account, setAccount} = useContext(AccountContext)
     const {contract, setContract} = useContext(ContractContext)
     const {socketContract, setSocketContract} = useContext(SocketContractContext)
@@ -62,6 +64,7 @@ const App = () => {
         // contract
         const web3 = new Web3(Web3.givenProvider || 'http://localhost:7545')
         const initContract = new web3.eth.Contract(TODO_LIST_ABI, TODO_LIST_ADDRESS)
+        setWeb3(web3)
         setContract(initContract)
 
         // socket contract
