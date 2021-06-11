@@ -43,9 +43,15 @@ const DriverInfoScene = (props) => {
     const {info, setInfo} = useContext(ProvidedInfoContext)
 
     const [driver, setDriver] = useState(props.location.state.driver)
+    const [estimatedPrice, setEstimatedPrice] = useState(null)
+
     const [isAlertDialogShow, setIsAlertDialogShow] = useState(false)
     const [error, setError] = useState(null)
     const [isMapDialogShow, setIsMapDialogShow] = useState(false)
+
+    useEffect(() => {
+        setEstimatedPrice(Number(info.distance) * Number(driver.pricePerKm))
+    }, [info, driver])
 
     const translateVehicleType = (vehicleType) => {
         if (vehicleType == 0) return "Motorcycle"
@@ -55,22 +61,14 @@ const DriverInfoScene = (props) => {
     }
 
     const handleSelectButton = () => {
-        // contract.methods.processRide(driver.driverIndex, driver.driverAddress, account.address, info.phoneNumber, info.position, info.destination)
-        //     .send({from: account})
-        //     .on('receipt', () => {
-        //         history.push('/rider-confirm')
-        //     })
-        //     .on('error', () => {
-        //
-        //     })
         setIsAlertDialogShow(true)
     }
 
     const handleProcessButton = () => {
-        contract.methods.processRide(driver.index, driver.addr, account.address, info.phoneNumber, info.position, info.destination)
+        contract.methods.processRide(driver.index, driver.addr, account.address, info.phoneNumber, info.position, info.destination, info.distance)
             .send({from: account.address})
             .on('receipt', () => {
-                history.push('/rider-confirm')
+                history.push('/rider-confirm', { driver: driver })
             })
             .on('error', () => {
                 setError({severity: error, message: "Error processing transaction!"})
@@ -78,107 +76,107 @@ const DriverInfoScene = (props) => {
     }
 
     return (
-                <div className={classes.paper}>
+        <div className={classes.paper}>
 
-                    <Typography component="h1" variant="h5">
-                        Driver Detail Information
-                    </Typography>
+            <Typography component="h1" variant="h5">
+                Driver Detail Information
+            </Typography>
 
-                    <Grid container spacing={2} className={classes.frame}>
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography}>Phone Number:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Typography>{driver.phoneNumber}</Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}><Divider/></Grid>
-
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography}>Vehicle Type:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Chip label={translateVehicleType(driver.vehicleType)} color="primary" variant="outlined"/>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}><Divider/></Grid>
-
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography}>Vehicle Detail:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Typography>{driver.vehicleDetail}</Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}><Divider/></Grid>
-
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography} >Position:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Typography>
-                                    {driver.position}
-                                </Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}><Divider/></Grid>
-
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography}>Price/Kilometer:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Typography>{`${driver.pricePerKm} $`}</Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}><Divider/></Grid>
-
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography}>Estimated Distance:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Typography>9.4 km</Typography>
-                            </Grid>
-                        </Grid>
-                        <Grid item xs={12}><Divider/></Grid>
-
-                        <Grid item container xs={12}>
-                            <Grid item xs={5}>
-                                <Box className={classes.typography}>Estimated Price:</Box>
-                            </Grid>
-                            <Grid item>
-                                <Typography>149 $</Typography>
-                            </Grid>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Chip
-                                color="primary"
-                                icon={<DirectionsCarRoundedIcon />}
-                                label="See route"
-                                onClick={() => {setIsMapDialogShow(true)}}
-                            />
-                        </Grid>
+            <Grid container spacing={2} className={classes.frame}>
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography}>Phone Number:</Box>
                     </Grid>
-                    <Button
-                        type="submit"
-                        fullWidth
-                        variant="contained"
-                        color="primary"
-                        className={classes.submit}
-                        onClick={handleSelectButton}>
-                        Select
-                    </Button>
+                    <Grid item>
+                        <Typography>{driver.phoneNumber}</Typography>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}><Divider/></Grid>
 
-                    {isAlertDialogShow && <AlertDialog process={handleProcessButton} close={() => {setIsAlertDialogShow(false)}} />}
-                    {error && <FeedbackSnackbar severity={error.severity} message={error.message} close={() => {setError(null)}} />}
-                    {isMapDialogShow && <ChoosePositionDialog open={true} close={() => {setIsMapDialogShow(false)}}/>}
-                </div>
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography}>Vehicle Type:</Box>
+                    </Grid>
+                    <Grid item>
+                        <Chip label={translateVehicleType(driver.vehicleType)} color="primary" variant="outlined"/>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}><Divider/></Grid>
+
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography}>Vehicle Detail:</Box>
+                    </Grid>
+                    <Grid item>
+                        <Typography>{driver.vehicleDetail}</Typography>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}><Divider/></Grid>
+
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography} >Position:</Box>
+                    </Grid>
+                    <Grid item>
+                        <Typography>
+                            {driver.position}
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}><Divider/></Grid>
+
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography}>Price/Kilometer:</Box>
+                    </Grid>
+                    <Grid item>
+                        <Typography>{`${driver.pricePerKm} $`}</Typography>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}><Divider/></Grid>
+
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography}>Estimated Distance:</Box>
+                    </Grid>
+                    <Grid item>
+                        <Typography>{`${info.distance} km`}</Typography>
+                    </Grid>
+                </Grid>
+                <Grid item xs={12}><Divider/></Grid>
+
+                <Grid item container xs={12}>
+                    <Grid item xs={5}>
+                        <Box className={classes.typography}>Estimated Price:</Box>
+                    </Grid>
+                    <Grid item>
+                        <Typography>{`${estimatedPrice} $`}</Typography>
+                    </Grid>
+                </Grid>
+
+                <Grid item xs={12}>
+                    <Chip
+                        color="primary"
+                        icon={<DirectionsCarRoundedIcon />}
+                        label="See route"
+                        onClick={() => {setIsMapDialogShow(true)}}
+                    />
+                </Grid>
+            </Grid>
+            <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={handleSelectButton}>
+                Select
+            </Button>
+
+            {isAlertDialogShow && <AlertDialog process={handleProcessButton} close={() => {setIsAlertDialogShow(false)}} />}
+            {error && <FeedbackSnackbar severity={error.severity} message={error.message} close={() => {setError(null)}} />}
+            {isMapDialogShow && <ChoosePositionDialog open={true} close={() => {setIsMapDialogShow(false)}}/>}
+        </div>
     )
 };
 
