@@ -27,6 +27,7 @@ import HomeRoundedIcon from "@material-ui/icons/HomeRounded";
 import AccountInfoPopover from "./AccountInfoPopover";
 import { loadAddress, loadBalance } from "./Service/ContractService";
 import { Web3Context } from "./Provider/Web3Provider";
+import RiderWaitingScene from "./RiderWaitingScene";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -157,6 +158,10 @@ const App = () => {
                             <Route
                                 path={"/driver-waiting"}
                                 component={DriverWaitingScene}
+                            />
+                            <Route
+                                path={"/rider-waiting"}
+                                component={RiderWaitingScene}
                             />
                             <Route
                                 path={"/request-ride"}

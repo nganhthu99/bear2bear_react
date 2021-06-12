@@ -79,7 +79,7 @@ const DriverInfoScene = (props) => {
             )
             .send({ from: account.address })
             .on("receipt", () => {
-                history.push("/rider-confirm", { driver: driver });
+                history.push("/rider-waiting", { driver: driver });
             })
             .on("error", () => {
                 setError({
@@ -87,12 +87,6 @@ const DriverInfoScene = (props) => {
                     message: "Error processing transaction!",
                 });
             })
-            .on("error", () => {
-                setError({
-                    severity: error,
-                    message: "Error processing transaction!",
-                });
-            });
     };
 
     return (
