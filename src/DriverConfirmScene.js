@@ -69,12 +69,13 @@ const DriverConfirmScene = (props) => {
     }, [riderInfo, info]);
 
     const handleFinishButton = () => {
+        console.log(riderInfo.destination)
         setIsAlertDialogShow(true);
     };
 
     const handleProcessButton = () => {
         contract.methods
-            .finishRide(driverIndex)
+            .confirmRide(driverIndex)
             .send({ from: account.address })
             .on("receipt", () => {
                 setInfo({});
