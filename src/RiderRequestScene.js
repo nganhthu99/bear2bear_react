@@ -70,8 +70,8 @@ const RiderRequestScene = (props) => {
             setInfo({
                 phoneNumber,
                 vehicleType,
-                position,
-                destination,
+                position: position.address,
+                destination: destination.address,
                 distance,
                 geometry: position.geometry,
             });
@@ -86,7 +86,8 @@ const RiderRequestScene = (props) => {
 
     useEffect(() => {
         if (position && destination) {
-            setDistance(Number(destination) - Number(position));
+            setDistance(Math.floor(Math.random() * 10 + 1))
+            // setDistance(Number(destination) - Number(position));
             setIsCalculating(false);
         }
     }, [position, destination]);
@@ -167,7 +168,10 @@ const RiderRequestScene = (props) => {
                 /> */}
                 <InputGoogleAddress
                     label="Position"
-                    onChange={(address) => setPosition(address)}
+                    onChange={(address) => {
+                        setIsCalculating(true);
+                        setPosition(address)
+                    }}
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
