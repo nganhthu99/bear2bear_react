@@ -1,4 +1,4 @@
-export const TODO_LIST_ADDRESS = "0xBEAb66A91b426db76EDf433375416389bcBC5C0f";
+export const TODO_LIST_ADDRESS = "0x3F61b629Cc5428B94fE0d8CBb4Ac93E81B9F7008";
 
 export const TODO_LIST_ABI = [
     {
@@ -60,6 +60,10 @@ export const TODO_LIST_ABI = [
                     {
                         name: "destination",
                         type: "string",
+                    },
+                    {
+                        name: "distance",
+                        type: "uint256",
                     },
                     {
                         components: [
@@ -139,6 +143,11 @@ export const TODO_LIST_ABI = [
             },
             {
                 indexed: false,
+                name: "riderDistance",
+                type: "uint256",
+            },
+            {
+                indexed: false,
                 name: "lat",
                 type: "string",
             },
@@ -207,6 +216,10 @@ export const TODO_LIST_ABI = [
                             {
                                 name: "destination",
                                 type: "string",
+                            },
+                            {
+                                name: "distance",
+                                type: "uint256",
                             },
                             {
                                 components: [
@@ -319,6 +332,10 @@ export const TODO_LIST_ABI = [
                 type: "string",
             },
             {
+                name: "riderDistance",
+                type: "uint256",
+            },
+            {
                 name: "lat",
                 type: "string",
             },
@@ -355,7 +372,7 @@ export const TODO_LIST_ABI = [
                 type: "uint256",
             },
         ],
-        name: "confirmRide",
+        name: "finishRide",
         outputs: [],
         payable: false,
         stateMutability: "nonpayable",

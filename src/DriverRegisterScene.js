@@ -66,37 +66,7 @@ const DriverRegisterScene = (props) => {
     const [error, setError] = useState(null);
     const [isAlertDialogShow, setIsAlertDialogShow] = useState(false);
 
-    // const handleRegisterButton = () => {
-    //     if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
-    //         setInfo({
-    //             phoneNumber,
-    //             vehicleType,
-    //             vehicleDetail,
-    //             position,
-    //             pricePerKm
-    //         })
-    //         contract.methods.registerDrive(account.address, phoneNumber, vehicleType, vehicleDetail, position, Number(pricePerKm))
-    //             .send({from: account.address})
-    //             .on('receipt', () => {
-    //                 history.replace('/driver-waiting')
-    //             })
-    //             .on('error', () => {
-    //                 setError({severity: "error", message: "Error processing transaction!"})
-    //             })
-    //     } else {
-    //         setError({severity: "warning", message: "Please fill out all fields!"})
-    //     }
-    // }
-
     const handleRegisterButton = () => {
-        // contract.methods.processRide(driver.driverIndex, driver.driverAddress, account.address, info.phoneNumber, info.position, info.destination)
-        //     .send({from: account})
-        //     .on('receipt', () => {
-        //         history.push('/rider-confirm')
-        //     })
-        //     .on('error', () => {
-        //
-        //     })
         if (
             validatePhoneNumberUtil(phoneNumber) &&
             vehicleType &&
@@ -114,7 +84,6 @@ const DriverRegisterScene = (props) => {
     };
 
     const handleProcessButton = () => {
-        // if (validatePhoneNumberUtil(phoneNumber) && vehicleType && vehicleDetail && position && validatePriceUtil(pricePerKm)) {
         setInfo({
             phoneNumber,
             vehicleType,

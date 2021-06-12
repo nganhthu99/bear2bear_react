@@ -1,9 +1,7 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import { ContractContext } from "./Provider/ContractProvider";
-import { AccountContext } from "./Provider/AccountProvider";
 import { useHistory } from "react-router-dom";
 import Typography from "@material-ui/core/Typography";
 import { ProvidedInfoContext } from "./Provider/ProvidedInfoProvider";
@@ -12,6 +10,7 @@ import ChoosePositionDialog from "./ChoosePositionDialog";
 import { validatePhoneNumberUtil } from "./Utility/ValidateInputUtil";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
 import InputGoogleAddress from "./Common/InputGoogleAddress";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -26,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
     },
     submit: {
         margin: theme.spacing(3, 0, 2),
+    },
+    progressBar: {
+        margin: theme.spacing(2, 0, 0, 0),
     },
 }));
 
@@ -51,19 +53,14 @@ const RiderRequestScene = (props) => {
     const [vehicleType, setVehicleType] = useState("0");
     const [position, setPosition] = useState(null);
     const [destination, setDestination] = useState(null);
+    const [distance, setDistance] = useState(0);
 
-    const { account, setAccount } = useContext(AccountContext);
-    const { contract, setContract } = useContext(ContractContext);
     const { info, setInfo } = useContext(ProvidedInfoContext);
 
     const [error, setError] = useState(false);
+    const [isCalculating, setIsCalculating] = useState(false);
 
     const handleRequestButton = () => {
-        console.log(phoneNumber);
-        console.log(vehicleType);
-        console.log(position);
-        console.log(destination);
-
         if (
             validatePhoneNumberUtil(phoneNumber) &&
             vehicleType &&
@@ -73,8 +70,9 @@ const RiderRequestScene = (props) => {
             setInfo({
                 phoneNumber,
                 vehicleType,
-                position: position.address,
-                destination: destination.address,
+                position,
+                destination,
+                distance,
                 geometry: position.geometry,
             });
             history.push("/list-drivers");
@@ -85,6 +83,13 @@ const RiderRequestScene = (props) => {
             });
         }
     };
+
+    useEffect(() => {
+        if (position && destination) {
+            setDistance(Number(destination) - Number(position));
+            setIsCalculating(false);
+        }
+    }, [position, destination]);
 
     return (
         <div className={classes.paper}>
@@ -138,6 +143,10 @@ const RiderRequestScene = (props) => {
                     onChange={(event) => {
                         setPosition(event.target.value);
                     }}
+                    onChange={(event) => {
+                        setIsCalculating(true)
+                        setPosition(event.target.value)
+                    }}
                 />
                 <TextField
                     variant="outlined"
@@ -171,7 +180,10 @@ const RiderRequestScene = (props) => {
                 />
                 <InputGoogleAddress
                     label="Destination"
-                    onChange={(address) => setDestination(address)}
+                    onChange={(address) => {
+                        setIsCalculating(true);
+                        setDestination(address);
+                    }}
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
@@ -182,6 +194,19 @@ const RiderRequestScene = (props) => {
                         ),
                     }}
                 />
+                {!isCalculating && (
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        label="Distance"
+                        value={`${distance} km`}
+                    />
+                )}
+                {isCalculating && (
+                    <LinearProgress className={classes.progressBar} />
+                )}
                 <Button
                     type="submit"
                     fullWidth

@@ -54,6 +54,7 @@ const DriverWaitingScene = (props) => {
                         riderPhoneNumber: eventValue.riderPhoneNumber,
                         riderPosition: eventValue.riderPosition,
                         riderDestination: eventValue.riderDestination,
+                        riderDistance: eventValue.riderDistance,
                         geometry: {
                             lat: eventValue.lat,
                             lng: eventValue.lng,

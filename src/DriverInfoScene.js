@@ -43,9 +43,15 @@ const DriverInfoScene = (props) => {
     const { info, setInfo } = useContext(ProvidedInfoContext);
 
     const [driver, setDriver] = useState(props.location.state.driver);
+    const [estimatedPrice, setEstimatedPrice] = useState(null);
+
     const [isAlertDialogShow, setIsAlertDialogShow] = useState(false);
     const [error, setError] = useState(null);
     const [isMapDialogShow, setIsMapDialogShow] = useState(false);
+
+    useEffect(() => {
+        setEstimatedPrice(Number(info.distance) * Number(driver.pricePerKm));
+    }, [info, driver]);
 
     const translateVehicleType = (vehicleType) => {
         if (vehicleType == 0) return "Motorcycle";
@@ -55,16 +61,7 @@ const DriverInfoScene = (props) => {
     };
 
     const handleSelectButton = () => {
-        // contract.methods.processRide(driver.driverIndex, driver.driverAddress, account.address, info.phoneNumber, info.position, info.destination)
-        //     .send({from: account})
-        //     .on('receipt', () => {
-        //         history.push('/rider-confirm')
-        //     })
-        //     .on('error', () => {
-        //
-        //     })
         setIsAlertDialogShow(true);
-        console.log({ driver });
     };
 
     const handleProcessButton = () => {
@@ -76,12 +73,19 @@ const DriverInfoScene = (props) => {
                 info.phoneNumber,
                 info.position,
                 info.destination,
+                info.distance,
                 info.geometry.lat,
                 info.geometry.lng
             )
             .send({ from: account.address })
             .on("receipt", () => {
-                history.push("/rider-confirm");
+                history.push("/rider-confirm", { driver: driver });
+            })
+            .on("error", () => {
+                setError({
+                    severity: error,
+                    message: "Error processing transaction!",
+                });
             })
             .on("error", () => {
                 setError({
@@ -178,7 +182,7 @@ const DriverInfoScene = (props) => {
                         </Box>
                     </Grid>
                     <Grid item>
-                        <Typography>9.4 km</Typography>
+                        <Typography>{`${info.distance} km`}</Typography>
                     </Grid>
                 </Grid>
                 <Grid item xs={12}>
@@ -192,7 +196,7 @@ const DriverInfoScene = (props) => {
                         </Box>
                     </Grid>
                     <Grid item>
-                        <Typography>149 $</Typography>
+                        <Typography>{`${estimatedPrice} $`}</Typography>
                     </Grid>
                 </Grid>
 
