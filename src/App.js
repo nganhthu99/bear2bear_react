@@ -63,9 +63,6 @@ const App = () => {
     const { web3, setWeb3 } = useContext(Web3Context);
     const { account, setAccount } = useContext(AccountContext);
     const { contract, setContract } = useContext(ContractContext);
-    const { socketContract, setSocketContract } = useContext(
-        SocketContractContext
-    );
     const [value, setValue] = useState(0);
 
     useEffect(() => {
@@ -78,55 +75,18 @@ const App = () => {
         setWeb3(web3);
         setContract(initContract);
 
-        // socket contract
-        // const web3Socket = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:7545'))
-        // const initSocketContract = new web3Socket.eth.Contract(TODO_LIST_ABI, TODO_LIST_ADDRESS)
-        // setSocketContract(initSocketContract)
-        //
-        // initSocketContract.events.UpdateListDrivers({})
-        //     .on('data', async function(event){
-        //       console.log("Event update list drivers")
-        //       console.log(event.returnValues);
-        //       // Do something here
-        //     })
-        //     .on('error', console.error);
-
         // account
         loadAddress(web3).then((accounts) => {
             loadBalance(web3, accounts[0]).then((res) => {
-                console.log(web3.utils.fromWei(res, "ether"));
                 setAccount({
                     address: accounts[0],
                     balance: web3.utils.fromWei(res, "ether"),
                 });
             });
-            setAccount({ address: accounts[0] });
         });
     }, []);
 
-    // async function loadAddress(web3) {
-    //     return await web3.eth.getAccounts()
-    // }
-    //
-    // async function loadBalance(web3, address) {
-    //     return await web3.eth.getBalance(address)
-    // }
-
     return (
-        // <div>
-        //     <Switch>
-        //         <Route path={'/register-drive'} component={DriverRegisterScene}/>
-        //         <Route path={'/driver-waiting'} component={DriverWaitingScene}/>
-        //         <Route path={'/request-ride'} component={RiderRequestScene}/>
-        //         <Route path={'/list-drivers'} component={ListDriversScene}/>
-        //         <Route path={'/driver-info'} component={DriverInfoScene}/>
-        //         <Route path={'/driver-confirm'} component={DriverConfirmScene}/>
-        //         <Route path={'/rider-confirm'} component={RiderConfirmScene}/>
-        //         <Route path={'/confirm-ride-success'} component={ConfirmRideSuccessScene}/>
-        //         <Route path={'/'} component={HomeScene}/>
-        //     </Switch>
-        // </div>
-
         <Grid container component="main" className={classes.root}>
             <CssBaseline />
             <Grid

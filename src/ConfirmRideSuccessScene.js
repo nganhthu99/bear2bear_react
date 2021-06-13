@@ -29,8 +29,7 @@ const ConfirmRideSuccessScene = (props) => {
 
     return (
         <div className={classes.paper}>
-            <Typography variant="h5" className={classes.typography}>{"Confirm ride successfully."}</Typography>
-            <Typography variant="h5" className={classes.typography}>{"Have a nice ride!"}</Typography>
+            <Typography variant="h5" className={classes.typography}>{"Have a nice and safe ride!"}</Typography>
             <Button
                 fullWidth
                 variant="contained"

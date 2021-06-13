@@ -17,6 +17,8 @@ import ChoosePositionDialog from "./ChoosePositionDialog";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
 import AlertDialog from "./Common/AlertDialog";
 import InputGoogleAddress from "./Common/InputGoogleAddress";
+import {loadAddress, loadBalance} from "./Service/ContractService";
+import {Web3Context} from "./Provider/Web3Provider";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -53,6 +55,7 @@ const DriverRegisterScene = (props) => {
     const classes = useStyles();
     const history = useHistory();
 
+    const {web3, setWeb3} = useContext(Web3Context)
     const { account, setAccount } = useContext(AccountContext);
     const { info, setInfo } = useContext(ProvidedInfoContext);
     const { contract, setContract } = useContext(ContractContext);
@@ -105,6 +108,14 @@ const DriverRegisterScene = (props) => {
             )
             .send({ from: account.address })
             .on("receipt", () => {
+                loadAddress(web3).then((accounts) => {
+                    loadBalance(web3, accounts[0]).then((res) => {
+                        setAccount({
+                            address: accounts[0],
+                            balance: web3.utils.fromWei(res, "ether"),
+                        });
+                    });
+                });
                 history.replace("/driver-waiting");
             })
             .on("error", () => {
@@ -113,9 +124,6 @@ const DriverRegisterScene = (props) => {
                     message: "Error processing transaction!",
                 });
             });
-        // } else {
-        //     setError({severity: "warning", message: "Please fill out all fields!"})
-        // }
     };
 
     return (
@@ -166,21 +174,6 @@ const DriverRegisterScene = (props) => {
                         setVehicleDetail(event.target.value);
                     }}
                 />
-                {/* <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    label="Position"
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <ChoosePositionDialog/>
-                            </InputAdornment>
-                        )
-                    }}
-                    onChange={(event) => {setPosition(event.target.value)}}
-                /> */}
                 <InputGoogleAddress
                     label="Position"
                     onChange={(address) => setPosition(address)}

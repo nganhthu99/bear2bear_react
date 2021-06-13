@@ -15,6 +15,8 @@ import Avatar from "@material-ui/core/Avatar";
 import {ContractContext} from "./Provider/ContractProvider";
 import {AccountContext} from "./Provider/AccountProvider";
 import {Web3Context} from "./Provider/Web3Provider";
+import {loadAddress, loadBalance} from "./Service/ContractService";
+import driverAvatar from "./assets/images/driver.png";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -73,18 +75,16 @@ const RiderConfirmScene = (props) => {
                 setError({severity: "error", message: "Error processing transaction!"})
             } else {
                 console.log(result)
-                setInfo({})
-                history.push('/confirm-ride-success')
-
-                // contract.methods.payRide(driver.index, Number(estimatedPrice))
-                //     .send({from: account.address})
-                //     .on('receipt', () => {
-                //         setInfo({})
-                //         history.push('/confirm-ride-success')
-                //     })
-                //     .on('error', () => {
-                //         setError({severity: "error", message: "Error processing transaction!"})
-                //     })
+                loadAddress(web3).then((accounts) => {
+                    loadBalance(web3, accounts[0]).then((res) => {
+                        setAccount({
+                            address: accounts[0],
+                            balance: web3.utils.fromWei(res, "ether"),
+                        });
+                        setInfo({})
+                        history.push('/confirm-ride-success')
+                    });
+                });
             }
         });
     }
@@ -97,7 +97,7 @@ const RiderConfirmScene = (props) => {
             </Typography>
 
             <Avatar alt="Driver"
-                    src="https://cdn.icon-icons.com/icons2/2643/PNG/512/male_boy_person_people_avatar_icon_159358.png"
+                    src={driverAvatar}
                     className={classes.avatar} />
 
             <Grid container spacing={2} className={classes.frame}>
@@ -134,7 +134,7 @@ const RiderConfirmScene = (props) => {
                     <Chip
                         color="primary"
                         icon={<DirectionsCarRoundedIcon />}
-                        label="See route"
+                        label="See map"
                         onClick={() => {setIsMapDialogShow(true)}}
                     />
                 </Grid>
@@ -151,7 +151,22 @@ const RiderConfirmScene = (props) => {
 
             {isAlertDialogShow && <AlertDialog process={handleProcessButton} close={() => {setIsAlertDialogShow(false)}} />}
             {error && <FeedbackSnackbar severity={error.severity} message={error.message} close={() => {setError(null)}} />}
-            {isMapDialogShow && <ChoosePositionDialog open={true} close={() => {setIsMapDialogShow(false)}}/>}
+            {isMapDialogShow && (
+                <ChoosePositionDialog
+                    open={true}
+                    close={() => {
+                        setIsMapDialogShow(false);
+                    }}
+                    position={{
+                        lat: info.geometry.lat,
+                        lng: info.geometry.lng,
+                    }}
+                    destination={{
+                        lat: driver.geometry.lat,
+                        lng: driver.geometry.lng,
+                    }}
+                />
+            )}
         </div>
     )
 };

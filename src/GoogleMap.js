@@ -1,13 +1,8 @@
 import { Map, InfoWindow, Marker, GoogleApiWrapper } from "google-maps-react";
-import React, { useEffect, useState } from "react";
-import { Typography } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import Grid from "@material-ui/core/Grid";
-import Paper from "@material-ui/core/Paper";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
-import driverAvatar from "./assets/images/driver.png";
-import riderAvatar from "./assets/images/rider.png";
+import driverAvatar from "./assets/images/driver-marker.png";
+import riderAvatar from "./assets/images/rider-marker.png";
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -34,42 +29,8 @@ const MapContainer = (props) => {
     }
 
     const selectedPlace = useState({ name: "LA" });
-    // const [position, setPosition] = useState(props.position || null);
-    // const [destination, setDestination] = useState(props.destination || null);
-
-    const classes = useStyles();
-
-    const onMarkerClick = () => {};
 
     const onInfoWindowClose = () => {};
-
-    // Google Map
-    // useEffect(() => {
-    //     console.log(document.querySelector("#from"))
-    //     const autocomplete = new props.google.maps.places.Autocomplete(document.querySelector("#from"))
-    // }, [])
-    //
-    //
-    // const calcRoute = () => {
-    //     const google = props.google
-    //     const map = props.map
-    //     const directionService = new google.maps.DirectionsService()
-    //     const directionsDisplay = new google.maps.DirectionsRenderer()
-    //     directionsDisplay.setMap(map)
-    //     const request = {
-    //         origin: position,
-    //         destination: destination,
-    //         travelMode: google.maps.TravelMode.DRIVING,
-    //         unitSystem: google.maps.UnitSystem.IMPERIAL
-    //     }
-    //     directionService.route(request, (result, status) => {
-    //         if (status == google.maps.DirectionsStatus.OK) {
-    //             directionsDisplay.setDirections(result)
-    //         } else {
-    //             directionsDisplay.setDirections({ routes: [] })
-    //         }
-    //     })
-    // }
 
     return (
         <>
@@ -83,7 +44,7 @@ const MapContainer = (props) => {
                         position={position}
                         icon={{
                             url: isRider ? riderAvatar : driverAvatar,
-                            scaledSize: new window.google.maps.Size(45, 45),
+                            scaledSize: new window.google.maps.Size(30, 45),
                         }}
                     />
                 )}
@@ -92,7 +53,7 @@ const MapContainer = (props) => {
                         position={destination}
                         icon={{
                             url: isRider ? driverAvatar : riderAvatar,
-                            scaledSize: new window.google.maps.Size(45, 45),
+                            scaledSize: new window.google.maps.Size(30, 45),
                         }}
                     />
                 )}

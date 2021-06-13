@@ -16,6 +16,7 @@ import { AccountContext } from "./Provider/AccountProvider";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
 import AlertDialog from "./Common/AlertDialog";
 import { loadAddress, loadBalance } from "./Service/ContractService";
+import {Web3Context} from "./Provider/Web3Provider";
 import riderAvatar from "./assets/images/rider.png";
 
 const useStyles = makeStyles((theme) => ({
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
         alignItems: "center",
     },
     frame: {
-        margin: theme.spacing(5, 0, 0, 0),
+        margin: theme.spacing(1, 0, 0, 0),
     },
     typography: {
         fontWeight: 600,
@@ -45,22 +46,20 @@ const DriverConfirmScene = (props) => {
     const history = useHistory();
     const classes = useStyles();
 
+    const { web3, setWeb3 } = useContext(Web3Context)
     const { account, setAccount } = useContext(AccountContext);
     const { contract, setContract } = useContext(ContractContext);
     const { info, setInfo } = useContext(ProvidedInfoContext);
 
     const [riderInfo, setRiderInfo] = useState(props.location.state.riderInfo);
-    const [driverIndex, setDriverIndex] = useState(
-        props.location.state.driverIndex
-    );
+    const [driverIndex, setDriverIndex] = useState(props.location.state.driverIndex);
     const [estimatedPrice, setEstimatedPrice] = useState(0);
 
     const [isMapDialogShow, setIsMapDialogShow] = useState(false);
     const [error, setError] = useState(null);
     const [isAlertDialogShow, setIsAlertDialogShow] = useState(false);
 
-    // const [riderInfo, setRiderInfo] = useState({riderAddress: "3232", riderPosition: "43243", riderDestination: "#@143"})
-    // const [driverIndex, setDriverIndex] = useState("123")
+    const [isConfirmed, setIsConfirmed] = useState(false)
 
     useEffect(() => {
         setEstimatedPrice(
@@ -68,18 +67,30 @@ const DriverConfirmScene = (props) => {
         );
     }, [riderInfo, info]);
 
-    const handleFinishButton = () => {
-        console.log(riderInfo.destination)
+    const handleConfirmButton = () => {
         setIsAlertDialogShow(true);
     };
+
+    const handleFinishButton = () => {
+        setInfo({});
+        history.push("/confirm-ride-success");
+    }
 
     const handleProcessButton = () => {
         contract.methods
             .confirmRide(driverIndex)
             .send({ from: account.address })
             .on("receipt", () => {
-                setInfo({});
-                history.push("/confirm-ride-success");
+                loadAddress(web3).then((accounts) => {
+                    loadBalance(web3, accounts[0]).then((res) => {
+                        setAccount({
+                            address: accounts[0],
+                            balance: web3.utils.fromWei(res, "ether"),
+                        });
+                    });
+                });
+                setIsAlertDialogShow(false)
+                setIsConfirmed(true)
             })
             .on("error", () => {
                 setError({
@@ -87,7 +98,6 @@ const DriverConfirmScene = (props) => {
                     message: "Error processing transaction!",
                 });
             });
-        history.push("/confirm-ride-success");
     };
 
     return (
@@ -98,16 +108,9 @@ const DriverConfirmScene = (props) => {
 
             <Avatar
                 alt="Driver"
-                src="https://cdn.icon-icons.com/icons2/2643/PNG/512/male_boy_person_people_avatar_icon_159358.png"
+                src={riderAvatar}
                 className={classes.avatar}
             />
-
-            {/* <Grid container spacing={2} className={classes.frame}>
-
-            <Avatar
-                src={riderAvatar}
-                style={{ height: 80, width: 80, marginTop: 15 }}
-            /> */}
 
             <Grid container spacing={2} className={classes.frame}>
                 <Grid item container xs={12}>
@@ -173,7 +176,7 @@ const DriverConfirmScene = (props) => {
                     <Chip
                         color="primary"
                         icon={<DirectionsCarRoundedIcon />}
-                        label="See route"
+                        label="See map"
                         onClick={() => {
                             setIsMapDialogShow(true);
                         }}
@@ -181,7 +184,17 @@ const DriverConfirmScene = (props) => {
                 </Grid>
             </Grid>
 
-            <Button
+            {!isConfirmed && <Button
+                fullWidth
+                variant="contained"
+                color="primary"
+                className={classes.submit}
+                onClick={handleConfirmButton}
+            >
+                Confirm Ride
+            </Button>}
+
+            {isConfirmed && <Button
                 fullWidth
                 variant="contained"
                 color="primary"
@@ -189,7 +202,8 @@ const DriverConfirmScene = (props) => {
                 onClick={handleFinishButton}
             >
                 Finish
-            </Button>
+            </Button>}
+
             {isMapDialogShow && (
                 <ChoosePositionDialog
                     open={true}

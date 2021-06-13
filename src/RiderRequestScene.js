@@ -128,44 +128,6 @@ const RiderRequestScene = (props) => {
                         </option>
                     ))}
                 </TextField>
-                {/* <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    label="Position"
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <ChoosePositionDialog />
-                            </InputAdornment>
-                        ),
-                    }}
-                    onChange={(event) => {
-                        setPosition(event.target.value);
-                    }}
-                    onChange={(event) => {
-                        setIsCalculating(true)
-                        setPosition(event.target.value)
-                    }}
-                />
-                <TextField
-                    variant="outlined"
-                    margin="normal"
-                    required
-                    fullWidth
-                    label="Destination"
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <ChoosePositionDialog />
-                            </InputAdornment>
-                        ),
-                    }}
-                    onChange={(event) => {
-                        setDestination(event.target.value);
-                    }}
-                /> */}
                 <InputGoogleAddress
                     label="Position"
                     onChange={(address) => {

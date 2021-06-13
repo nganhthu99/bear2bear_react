@@ -48,6 +48,10 @@ const DriverWaitingScene = (props) => {
                 const eventValue = event.returnValues;
                 const driverAddress = eventValue.driverAddress;
                 const driverIndex = eventValue.driverIndex;
+
+                console.log(eventValue.lat)
+                console.log(eventValue.lng)
+
                 if (driverAddress === account.address) {
                     const rider = {
                         riderAddress: eventValue.riderAddress,

@@ -15,6 +15,8 @@ import AlertDialog from "./Common/AlertDialog";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
 import DirectionsCarRoundedIcon from "@material-ui/icons/DirectionsCarRounded";
 import driverAvatar from "./assets/images/driver.png";
+import {loadAddress, loadBalance} from "./Service/ContractService";
+import {Web3Context} from "./Provider/Web3Provider";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -38,6 +40,7 @@ const DriverInfoScene = (props) => {
     const classes = useStyles();
     const history = useHistory();
 
+    const { web3, setWeb3 } = useContext(Web3Context)
     const { contract, setContract } = useContext(ContractContext);
     const { account, setAccount } = useContext(AccountContext);
     const { info, setInfo } = useContext(ProvidedInfoContext);
@@ -66,7 +69,7 @@ const DriverInfoScene = (props) => {
 
     const handleProcessButton = () => {
         contract.methods
-            .processRide(
+            .processRide (
                 driver.index,
                 driver.addr,
                 account.address,
@@ -79,6 +82,14 @@ const DriverInfoScene = (props) => {
             )
             .send({ from: account.address })
             .on("receipt", () => {
+                loadAddress(web3).then((accounts) => {
+                    loadBalance(web3, accounts[0]).then((res) => {
+                        setAccount({
+                            address: accounts[0],
+                            balance: web3.utils.fromWei(res, "ether"),
+                        });
+                    });
+                });
                 history.push("/rider-waiting", { driver: driver });
             })
             .on("error", () => {
@@ -198,7 +209,7 @@ const DriverInfoScene = (props) => {
                     <Chip
                         color="primary"
                         icon={<DirectionsCarRoundedIcon />}
-                        label="See route"
+                        label="See map"
                         onClick={() => {
                             setIsMapDialogShow(true);
                         }}
