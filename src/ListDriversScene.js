@@ -16,6 +16,9 @@ import Chip from "@material-ui/core/Chip";
 import FaceIcon from '@material-ui/icons/Face';
 import {FormControl, Input, MenuItem, Select, TextField} from "@material-ui/core";
 import {ProvidedInfoContext} from "./Provider/ProvidedInfoProvider";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import ChoosePositionDialog from "./ChoosePositionDialog";
+import InputGoogleAddress from "./Common/InputGoogleAddress";
 const useStyles = makeStyles((theme) => ({
     paper: {
         margin: theme.spacing(2.5, 2),
@@ -47,6 +50,7 @@ const ListDriversScene = (props) => {
     const [filterVehicleType, setFilterVehicleType] = useState("3");
     const [searchTerm, setSearchTerm] = useState("");
     const [sortPriceTerm, setSortPriceTerm] = useState(0);
+    const [search, setSearch] = useState(false);
     const { info, setInfo } = useContext(ProvidedInfoContext);
 
     async function loadListDrivers() {
@@ -60,10 +64,10 @@ const ListDriversScene = (props) => {
             .then((res) => {})
     }, [])
 
-    useEffect(() => {
+    useEffect(() => { debugger;
         // filter drivers by rider provided information
         filterList(filterVehicleType, sortPriceTerm);
-    }, [filterVehicleType, sortPriceTerm])
+    }, [filterVehicleType, sortPriceTerm, search])
 
     const handleReloadListDrivers =  () => {
         loadListDrivers()
@@ -83,9 +87,18 @@ const ListDriversScene = (props) => {
 
     const filterList = (vehicleType, sort) => {
         if (vehicleType === "3" && sort === 0){
-            setShownListDrivers(listDrivers);
+            let filteredList = listDrivers;
+            //search
+            if (searchTerm !== ""){
+                filteredList = filteredList.filter((driver) => {
+                    return driver.position.toLowerCase().includes(searchTerm);
+                });
+            }
+
+            setShownListDrivers(filteredList);
         }
         else{
+            //filter
             let filteredList = [];
             if (vehicleType === "3"){
                 filteredList = listDrivers;
@@ -94,11 +107,21 @@ const ListDriversScene = (props) => {
                     return driver.vehicleType === vehicleType;
                 });
             }
+
+            //search
+            if (searchTerm !== ""){
+                filteredList = filteredList.filter((driver) => {
+                    return driver.position.toLowerCase().includes(searchTerm);
+                });
+            }
+
+            //sort
             if (sort === 1) {
                 filteredList = filteredList.slice().sort((driver1, driver2) => (parseInt(driver1.pricePerKm) - parseInt(driver2.pricePerKm)));
             }else if (sort === 2){
                 filteredList = filteredList.slice().sort((driver1, driver2) => (parseInt(driver1.pricePerKm) - parseInt(driver2.pricePerKm))).reverse();
             }
+
             setShownListDrivers(filteredList);
         }
     }
@@ -157,12 +180,18 @@ const ListDriversScene = (props) => {
                             <TableCell>
                                 Position
                                 <FormControl>
+                                    {/*<InputGoogleAddress*/}
+                                    {/*    onChange={(address) => {*/}
+                                    {/*        console.log(address);*/}
+                                    {/*    }}*/}
+                                    {/*/>*/}
                                     <Input
                                         placeholder="Search"
                                         inputProps={{ 'aria-label': 'description' }}
                                         className={classes.menuItemText}
                                         value={searchTerm}
-                                        onChange={(event) => {changeSearchTermHandle(event)}}
+                                        onKeyDown={() => {setSearch(!search)}}
+                                        onChange={(event) => {changeSearchTermHandle(event)} }
                                     />
                                 </FormControl>
                             </TableCell>
