@@ -14,6 +14,7 @@ import IconButton from "@material-ui/core/IconButton";
 import LoopRoundedIcon from '@material-ui/icons/LoopRounded';
 import Chip from "@material-ui/core/Chip";
 import FaceIcon from '@material-ui/icons/Face';
+import {FormControl, Input, MenuItem, Select, TextField} from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
     paper: {
         margin: theme.spacing(2.5, 2),
@@ -31,6 +32,9 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: '130px',
         minWidth: '130px'
     },
+    menuItemText: {
+        fontSize: "smaller"
+    }
 }));
 
 const ListDriversScene = (props) => {
@@ -38,10 +42,15 @@ const ListDriversScene = (props) => {
     const classes = useStyles()
     const {contract, setContract} = useContext(ContractContext)
     const [listDrivers, setListDrivers] = useState([])
+    const [shownListDrivers, setShownListDrivers] = useState([]);
+    const [filterVehicleType, setFilterVehicleType] = useState(3);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortPriceTerm, setSortPriceTerm] = useState(0);
 
     async function loadListDrivers() {
         const receivedListDrivers = await contract.methods.getListDrivers().call()
         setListDrivers(receivedListDrivers)
+        setShownListDrivers(receivedListDrivers);
     }
 
     useEffect(() => {
@@ -49,10 +58,10 @@ const ListDriversScene = (props) => {
             .then((res) => {})
     }, [])
 
-    useEffect(() => {
-        // filter drivers by rider provided information
-
-    }, [listDrivers])
+    // useEffect(() => {
+    //     // filter drivers by rider provided information
+    //
+    // }, [listDrivers])
 
     const handleReloadListDrivers =  () => {
         loadListDrivers()
@@ -64,10 +73,33 @@ const ListDriversScene = (props) => {
     }
 
     const translateVehicleType = (vehicleType) => {
-        if (vehicleType == 0) return "Motorcycle"
-        else if (vehicleType == 1) return "4-seat car"
-        else if (vehicleType == 2) return "7-seat car"
+        if (vehicleType === "0") return "Motorcycle"
+        else if (vehicleType === "1") return "4-seat car"
+        else if (vehicleType === "2") return "7-seat car"
         else return "undefined"
+    }
+
+    const filterVehicleTypeHandle = (event) => {
+        const selectedValue = event.target.value;
+        setFilterVehicleType(selectedValue);
+
+        let filteredList = listDrivers.filter((driver) => {
+            return driver.vehicleType === selectedValue;
+        });
+
+        if (selectedValue === "3"){
+            filteredList = listDrivers;
+        }
+
+        setShownListDrivers(filteredList);
+    }
+
+    const changeSearchTermHandle = (event) => {
+        setSearchTerm(event.target.value);
+    }
+
+    const changeSortPriceTermHandle = (event) => {
+        setSortPriceTerm(event.target.value);
     }
 
     return (
@@ -88,20 +120,66 @@ const ListDriversScene = (props) => {
                     <TableHead>
                         <TableRow>
                             <TableCell></TableCell>
-                            <TableCell>Vehicle Type</TableCell>
-                            <TableCell className={classes.tableCell}>Position</TableCell>
-                            <TableCell align="right">Price/Km</TableCell>
+                            <TableCell>
+                                Vehicle Type
+                                <FormControl>
+                                    <Select
+                                        displayEmpty
+                                        inputProps={{ 'aria-label': 'Without label' }}
+                                        value={filterVehicleType}
+                                        onChange={(event) => filterVehicleTypeHandle(event)}
+                                        className={classes.menuItemText}
+                                    >
+                                        <MenuItem value={"3"} className={classes.menuItemText}>
+                                            All
+                                        </MenuItem>
+                                        <MenuItem value={"0"} className={classes.menuItemText}>{translateVehicleType("0")}</MenuItem>
+                                        <MenuItem value={"1"} className={classes.menuItemText}>{translateVehicleType("1")}</MenuItem>
+                                        <MenuItem value={"2"} className={classes.menuItemText}>{translateVehicleType("2")}</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
+                            <TableCell>
+                                Position
+                                <FormControl>
+                                    <Input
+                                        placeholder="Search"
+                                        inputProps={{ 'aria-label': 'description' }}
+                                        className={classes.menuItemText}
+                                        value={searchTerm}
+                                        onChange={(event) => {changeSearchTermHandle(event)}}
+                                    />
+                                </FormControl>
+                            </TableCell>
+                            <TableCell>
+                                Price/Km
+                                <FormControl>
+                                    <Select
+                                        displayEmpty
+                                        inputProps={{ 'aria-label': 'Without label' }}
+                                        value={sortPriceTerm}
+                                        onChange={(event) => changeSortPriceTermHandle(event)}
+                                        className={classes.menuItemText}
+                                    >
+                                        <MenuItem value={0} className={classes.menuItemText}>
+                                            None
+                                        </MenuItem>
+                                        <MenuItem value={1} className={classes.menuItemText}>Ascending</MenuItem>
+                                        <MenuItem value={2} className={classes.menuItemText}>Descending</MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {listDrivers.map((driver) => (
+                        {shownListDrivers.map((driver) => (
                             <TableRow key={driver.addr} hover onClick={() => handleTableRowClick(driver)}>
                                 <TableCell><FaceIcon/></TableCell>
                                 <TableCell>
                                     <Chip label={translateVehicleType(driver.vehicleType)} color="primary" variant="outlined"/>
                                 </TableCell>
                                 <TableCell className={classes.tableCell}>{driver.position}</TableCell>
-                                <TableCell align="right">{`${driver.pricePerKm} $`}</TableCell>
+                                <TableCell align="right">{`${driver.pricePerKm} ETH`}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>

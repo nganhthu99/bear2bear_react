@@ -197,7 +197,7 @@ const DriverRegisterScene = (props) => {
                     InputProps={{
                         endAdornment: (
                             <InputAdornment position="end">
-                                <AttachMoneyRoundedIcon color="primary" />
+                                <Typography color="primary">ETH</Typography>
                             </InputAdornment>
                         ),
                     }}
