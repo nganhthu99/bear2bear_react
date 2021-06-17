@@ -15,6 +15,7 @@ import LoopRoundedIcon from '@material-ui/icons/LoopRounded';
 import Chip from "@material-ui/core/Chip";
 import FaceIcon from '@material-ui/icons/Face';
 import {FormControl, Input, MenuItem, Select, TextField} from "@material-ui/core";
+import {ProvidedInfoContext} from "./Provider/ProvidedInfoProvider";
 const useStyles = makeStyles((theme) => ({
     paper: {
         margin: theme.spacing(2.5, 2),
@@ -46,11 +47,12 @@ const ListDriversScene = (props) => {
     const [filterVehicleType, setFilterVehicleType] = useState("3");
     const [searchTerm, setSearchTerm] = useState("");
     const [sortPriceTerm, setSortPriceTerm] = useState(0);
+    const { info, setInfo } = useContext(ProvidedInfoContext);
 
     async function loadListDrivers() {
         const receivedListDrivers = await contract.methods.getListDrivers().call()
-        setListDrivers(receivedListDrivers)
-        setShownListDrivers(receivedListDrivers);
+        setListDrivers(receivedListDrivers);
+        setFilterVehicleType(info.vehicleType);
     }
 
     useEffect(() => {
@@ -58,7 +60,7 @@ const ListDriversScene = (props) => {
             .then((res) => {})
     }, [])
 
-    useEffect(() => { debugger;
+    useEffect(() => {
         // filter drivers by rider provided information
         filterList(filterVehicleType, sortPriceTerm);
     }, [filterVehicleType, sortPriceTerm])
