@@ -43,7 +43,7 @@ const ListDriversScene = (props) => {
     const {contract, setContract} = useContext(ContractContext)
     const [listDrivers, setListDrivers] = useState([])
     const [shownListDrivers, setShownListDrivers] = useState([]);
-    const [filterVehicleType, setFilterVehicleType] = useState(3);
+    const [filterVehicleType, setFilterVehicleType] = useState("3");
     const [searchTerm, setSearchTerm] = useState("");
     const [sortPriceTerm, setSortPriceTerm] = useState(0);
 
@@ -58,10 +58,10 @@ const ListDriversScene = (props) => {
             .then((res) => {})
     }, [])
 
-    // useEffect(() => {
-    //     // filter drivers by rider provided information
-    //
-    // }, [listDrivers])
+    useEffect(() => { debugger;
+        // filter drivers by rider provided information
+        filterList(filterVehicleType, sortPriceTerm);
+    }, [filterVehicleType, sortPriceTerm])
 
     const handleReloadListDrivers =  () => {
         loadListDrivers()
@@ -79,19 +79,31 @@ const ListDriversScene = (props) => {
         else return "undefined"
     }
 
+    const filterList = (vehicleType, sort) => {
+        if (vehicleType === "3" && sort === 0){
+            setShownListDrivers(listDrivers);
+        }
+        else{
+            let filteredList = [];
+            if (vehicleType === "3"){
+                filteredList = listDrivers;
+            }else{
+                filteredList = listDrivers.filter((driver) => {
+                    return driver.vehicleType === vehicleType;
+                });
+            }
+            if (sort === 1) {
+                filteredList = filteredList.slice().sort((driver1, driver2) => (parseInt(driver1.pricePerKm) - parseInt(driver2.pricePerKm)));
+            }else if (sort === 2){
+                filteredList = filteredList.slice().sort((driver1, driver2) => (parseInt(driver1.pricePerKm) - parseInt(driver2.pricePerKm))).reverse();
+            }
+            setShownListDrivers(filteredList);
+        }
+    }
+
     const filterVehicleTypeHandle = (event) => {
         const selectedValue = event.target.value;
         setFilterVehicleType(selectedValue);
-
-        let filteredList = listDrivers.filter((driver) => {
-            return driver.vehicleType === selectedValue;
-        });
-
-        if (selectedValue === "3"){
-            filteredList = listDrivers;
-        }
-
-        setShownListDrivers(filteredList);
     }
 
     const changeSearchTermHandle = (event) => {
@@ -99,7 +111,8 @@ const ListDriversScene = (props) => {
     }
 
     const changeSortPriceTermHandle = (event) => {
-        setSortPriceTerm(event.target.value);
+        const sorted = event.target.value;
+        setSortPriceTerm(sorted);
     }
 
     return (
@@ -130,12 +143,12 @@ const ListDriversScene = (props) => {
                                         onChange={(event) => filterVehicleTypeHandle(event)}
                                         className={classes.menuItemText}
                                     >
-                                        <MenuItem value={"3"} className={classes.menuItemText}>
+                                        <MenuItem value="3" className={classes.menuItemText}>
                                             All
                                         </MenuItem>
-                                        <MenuItem value={"0"} className={classes.menuItemText}>{translateVehicleType("0")}</MenuItem>
-                                        <MenuItem value={"1"} className={classes.menuItemText}>{translateVehicleType("1")}</MenuItem>
-                                        <MenuItem value={"2"} className={classes.menuItemText}>{translateVehicleType("2")}</MenuItem>
+                                        <MenuItem value="0" className={classes.menuItemText}>{translateVehicleType("0")}</MenuItem>
+                                        <MenuItem value="1" className={classes.menuItemText}>{translateVehicleType("1")}</MenuItem>
+                                        <MenuItem value="2" className={classes.menuItemText}>{translateVehicleType("2")}</MenuItem>
                                     </Select>
                                 </FormControl>
                             </TableCell>
