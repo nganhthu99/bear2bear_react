@@ -11,6 +11,7 @@ import { validatePhoneNumberUtil } from "./Utility/ValidateInputUtil";
 import FeedbackSnackbar from "./Common/FeedbackSnackbar";
 import InputGoogleAddress from "./Common/InputGoogleAddress";
 import LinearProgress from "@material-ui/core/LinearProgress";
+import { getDistanceFromLatLonInKm } from "./utils";
 
 const useStyles = makeStyles((theme) => ({
     paper: {
@@ -86,8 +87,11 @@ const RiderRequestScene = (props) => {
 
     useEffect(() => {
         if (position && destination) {
-            setDistance(Math.floor(Math.random() * 10 + 1))
-            // setDistance(Number(destination) - Number(position));
+            const distance = getDistanceFromLatLonInKm(
+                position.geometry,
+                destination.geometry
+            );
+            setDistance(distance);
             setIsCalculating(false);
         }
     }, [position, destination]);
@@ -132,7 +136,7 @@ const RiderRequestScene = (props) => {
                     label="Position"
                     onChange={(address) => {
                         setIsCalculating(true);
-                        setPosition(address)
+                        setPosition(address);
                     }}
                     InputProps={{
                         endAdornment: (
