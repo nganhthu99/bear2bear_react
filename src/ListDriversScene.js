@@ -17,6 +17,13 @@ import FaceIcon from "@material-ui/icons/Face";
 import { TableSortLabel } from "@material-ui/core";
 import { ProvidedInfoContext } from "./Provider/ProvidedInfoProvider";
 import { getDistanceFromLatLonInKm } from "./utils";
+import {
+    FormControl,
+    Input,
+    MenuItem,
+    Select,
+    TextField,
+} from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
     paper: {
         margin: theme.spacing(2.5, 2),
@@ -34,6 +41,9 @@ const useStyles = makeStyles((theme) => ({
         maxWidth: "130px",
         minWidth: "130px",
     },
+    menuItemText: {
+        fontSize: "smaller",
+    },
 }));
 
 const ListDriversScene = (props) => {
@@ -41,6 +51,10 @@ const ListDriversScene = (props) => {
     const classes = useStyles();
     const { contract, setContract } = useContext(ContractContext);
     const [listDrivers, setListDrivers] = useState([]);
+    const [shownListDrivers, setShownListDrivers] = useState([]);
+    const [filterVehicleType, setFilterVehicleType] = useState("3");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortPriceTerm, setSortPriceTerm] = useState(0);
     const { info, setInfo } = useContext(ProvidedInfoContext);
     const [sortPosition, setSortPosition] = useState(null);
     const [initListDrivers, setInitListDrivers] = useState([]);
@@ -50,6 +64,7 @@ const ListDriversScene = (props) => {
             .getListDrivers()
             .call();
         setListDrivers(receivedListDrivers);
+        setFilterVehicleType(info.vehicleType);
         setInitListDrivers([...receivedListDrivers]);
     }
 
@@ -59,7 +74,8 @@ const ListDriversScene = (props) => {
 
     useEffect(() => {
         // filter drivers by rider provided information
-    }, [listDrivers]);
+        filterList(filterVehicleType, sortPriceTerm);
+    }, [filterVehicleType, sortPriceTerm]);
 
     const handleReloadListDrivers = () => {
         loadListDrivers().then((res) => {});
@@ -70,9 +86,9 @@ const ListDriversScene = (props) => {
     };
 
     const translateVehicleType = (vehicleType) => {
-        if (vehicleType == 0) return "Motorcycle";
-        else if (vehicleType == 1) return "4-seat car";
-        else if (vehicleType == 2) return "7-seat car";
+        if (vehicleType === "0") return "Motorcycle";
+        else if (vehicleType === "1") return "4-seat car";
+        else if (vehicleType === "2") return "7-seat car";
         else return "undefined";
     };
 
@@ -96,15 +112,64 @@ const ListDriversScene = (props) => {
             return -1;
         });
         if (sortPosition !== "desc") {
-            setListDrivers(newListDrivers);
+            setShownListDrivers(newListDrivers);
+            console.log({ newListDrivers });
         } else {
-            setListDrivers(initListDrivers);
+            setShownListDrivers(initListDrivers);
         }
         setSortPosition((prevSort) => {
             if (!prevSort) return "asc";
             if (prevSort === "asc") return "desc";
             return null;
         });
+    };
+
+    const filterList = (vehicleType, sort) => {
+        if (vehicleType === "3" && sort === 0) {
+            setShownListDrivers(listDrivers);
+        } else {
+            let filteredList = [];
+            if (vehicleType === "3") {
+                filteredList = listDrivers;
+            } else {
+                filteredList = listDrivers.filter((driver) => {
+                    return driver.vehicleType === vehicleType;
+                });
+            }
+            if (sort === 1) {
+                filteredList = filteredList
+                    .slice()
+                    .sort(
+                        (driver1, driver2) =>
+                            parseInt(driver1.pricePerKm) -
+                            parseInt(driver2.pricePerKm)
+                    );
+            } else if (sort === 2) {
+                filteredList = filteredList
+                    .slice()
+                    .sort(
+                        (driver1, driver2) =>
+                            parseInt(driver1.pricePerKm) -
+                            parseInt(driver2.pricePerKm)
+                    )
+                    .reverse();
+            }
+            setShownListDrivers(filteredList);
+        }
+    };
+
+    const filterVehicleTypeHandle = (event) => {
+        const selectedValue = event.target.value;
+        setFilterVehicleType(selectedValue);
+    };
+
+    const changeSearchTermHandle = (event) => {
+        setSearchTerm(event.target.value);
+    };
+
+    const changeSortPriceTermHandle = (event) => {
+        const sorted = event.target.value;
+        setSortPriceTerm(sorted);
     };
 
     return (
@@ -126,8 +191,48 @@ const ListDriversScene = (props) => {
                     <TableHead>
                         <TableRow>
                             <TableCell></TableCell>
-                            <TableCell>Vehicle Type</TableCell>
-                            <TableCell className={classes.tableCell}>
+                            <TableCell>
+                                Vehicle Type
+                                <FormControl>
+                                    <Select
+                                        displayEmpty
+                                        inputProps={{
+                                            "aria-label": "Without label",
+                                        }}
+                                        value={filterVehicleType}
+                                        onChange={(event) =>
+                                            filterVehicleTypeHandle(event)
+                                        }
+                                        className={classes.menuItemText}
+                                    >
+                                        <MenuItem
+                                            value="3"
+                                            className={classes.menuItemText}
+                                        >
+                                            All
+                                        </MenuItem>
+                                        <MenuItem
+                                            value="0"
+                                            className={classes.menuItemText}
+                                        >
+                                            {translateVehicleType("0")}
+                                        </MenuItem>
+                                        <MenuItem
+                                            value="1"
+                                            className={classes.menuItemText}
+                                        >
+                                            {translateVehicleType("1")}
+                                        </MenuItem>
+                                        <MenuItem
+                                            value="2"
+                                            className={classes.menuItemText}
+                                        >
+                                            {translateVehicleType("2")}
+                                        </MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
+                            <TableCell>
                                 <TableSortLabel
                                     active={Boolean(sortPosition)}
                                     direction={
@@ -137,12 +242,59 @@ const ListDriversScene = (props) => {
                                 >
                                     Position
                                 </TableSortLabel>
+                                <FormControl>
+                                    <Input
+                                        placeholder="Search"
+                                        inputProps={{
+                                            "aria-label": "description",
+                                        }}
+                                        className={classes.menuItemText}
+                                        value={searchTerm}
+                                        onChange={(event) => {
+                                            changeSearchTermHandle(event);
+                                        }}
+                                    />
+                                </FormControl>
                             </TableCell>
-                            <TableCell align="right">Price/Km</TableCell>
+                            <TableCell>
+                                Price/Km
+                                <FormControl>
+                                    <Select
+                                        displayEmpty
+                                        inputProps={{
+                                            "aria-label": "Without label",
+                                        }}
+                                        value={sortPriceTerm}
+                                        onChange={(event) =>
+                                            changeSortPriceTermHandle(event)
+                                        }
+                                        className={classes.menuItemText}
+                                    >
+                                        <MenuItem
+                                            value={0}
+                                            className={classes.menuItemText}
+                                        >
+                                            None
+                                        </MenuItem>
+                                        <MenuItem
+                                            value={1}
+                                            className={classes.menuItemText}
+                                        >
+                                            Ascending
+                                        </MenuItem>
+                                        <MenuItem
+                                            value={2}
+                                            className={classes.menuItemText}
+                                        >
+                                            Descending
+                                        </MenuItem>
+                                    </Select>
+                                </FormControl>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {listDrivers.map((driver) => (
+                        {shownListDrivers.map((driver) => (
                             <TableRow
                                 key={driver.addr}
                                 hover
@@ -163,7 +315,7 @@ const ListDriversScene = (props) => {
                                 <TableCell className={classes.tableCell}>
                                     {driver.position}
                                 </TableCell>
-                                <TableCell align="right">{`${driver.pricePerKm} $`}</TableCell>
+                                <TableCell align="right">{`${driver.pricePerKm} ETH`}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
