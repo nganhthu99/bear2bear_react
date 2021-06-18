@@ -77,7 +77,6 @@ const ListDriversScene = (props) => {
     }, []);
 
     useEffect(() => {
-        debugger;
         // filter drivers by rider provided information
         filterList(filterVehicleType, sortPriceTerm);
     }, [filterVehicleType, sortPriceTerm, search]);
@@ -98,7 +97,7 @@ const ListDriversScene = (props) => {
     };
 
     const handleSortPosition = () => {
-        const newListDrivers = [...listDrivers];
+        const newListDrivers = [...shownListDrivers];
         newListDrivers.sort((driver1, driver2) => {
             const positionRider = {
                 lat: info.geometry.lat,
@@ -118,15 +117,15 @@ const ListDriversScene = (props) => {
         });
         if (sortPosition !== "desc") {
             setShownListDrivers(newListDrivers);
-            console.log({ newListDrivers });
         } else {
-            setShownListDrivers(initListDrivers);
+            filterList(filterVehicleType, sortPriceTerm);
         }
         setSortPosition((prevSort) => {
             if (!prevSort) return "asc";
             if (prevSort === "asc") return "desc";
             return null;
         });
+        setSortPriceTerm(0);
     };
 
     const filterList = (vehicleType, sort) => {
@@ -167,6 +166,7 @@ const ListDriversScene = (props) => {
                             parseInt(driver1.pricePerKm) -
                             parseInt(driver2.pricePerKm)
                     );
+                setSortPosition(null);
             } else if (sort === 2) {
                 filteredList = filteredList
                     .slice()
@@ -176,6 +176,7 @@ const ListDriversScene = (props) => {
                             parseInt(driver2.pricePerKm)
                     )
                     .reverse();
+                setSortPosition(null);
             }
 
             setShownListDrivers(filteredList);
